@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Notes
+Comment=Note taking for the elementary OS Desktop
+Exec=elementary-notes
+Icon=notes
+Categories=Utility;
+Terminal=false
+StartupNotify=true
+StartupWMClass=nvPY
