@@ -1,21 +1,21 @@
 #!/usr/bin/python
-# encoding: utf-8 
+# encoding: utf-8
 
 """
 LICENSE:
- 
+
     Copyright (C) 2014 Mario César Señoranis Ayala <mariocesar@creat1va.com>
-     
+
     This program or library is free software; you can redistribute it
     and/or modify it under the terms of the GNU Lesser General Public
     License as published by the Free Software Foundation; either
     version 3 of the License, or (at your option) any later version.
-     
+
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     Lesser General Public License for more details.
-     
+
     You should have received a copy of the GNU Lesser General
     Public License along with this library; if not, write to the
     Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
@@ -42,6 +42,7 @@ css = """
 }
 """
 
+
 class NoteWindow(Gtk.Window):
     def __init__(self, application):
         super(NoteWindow, self).__init__()
@@ -55,7 +56,6 @@ class NoteWindow(Gtk.Window):
         self.set_border_width(10)
         self.set_gravity(Gdk.Gravity.SOUTH_EAST)
         self.set_type_hint(Gdk.WindowTypeHint.NORMAL)
-
 
         # Signals
         self.restore_position()
@@ -96,10 +96,10 @@ class NoteWindow(Gtk.Window):
 
     def checkout_text_buffer(self):
         if os.path.exists(self.application.notes_file_path):
-            with file(self.application.notes_file_path, 'r+') as f:
-                self.textbuffer.set_text(f.read())      
+            with open(self.application.notes_file_path, 'r+') as f:
+                self.textbuffer.set_text(f.read())
         else:
-            file(self.application.notes_file_path, 'a').close()
+            open(self.application.notes_file_path, 'a').close()
 
     def commit_text_buffer(self):
         text = self.textbuffer.get_text(
@@ -107,7 +107,7 @@ class NoteWindow(Gtk.Window):
             self.textbuffer.get_end_iter(),
             False)
 
-        with file(self.application.notes_file_path, 'w+') as f:
+        with open(self.application.notes_file_path, 'w+') as f:
             f.write(text)
 
     def restore_position(self):
