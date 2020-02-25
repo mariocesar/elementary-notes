@@ -23,33 +23,36 @@ LICENSE:
 """
 
 import os
-from gi.repository import Gtk, Gdk, Gio, GLib
+import gi
 
-css = """
-#text_view, #note_window {
-    background-color: #FFFFE0;
-}
+gi.require_version("Gtk", "3.0")
+gi.require_version("GtkSource", "3.0")
 
-#text_view {
-    font-family: Liberation Mono;
-    font-size: 9px;
-}
-
-#text_view:selected,
-#text_view:selected:focus {
-    background-color: #FFD700;
-    color: #000;
-}
-"""
+from gi.repository import Gtk, GtkSource, Gdk, Gio, GLib
 
 
 class NoteWindow(Gtk.Window):
+    styles = """
+    #note_window, #grid, #text_view, #scroll_view {
+        background: #FFFFE0;
+    }
+    #text_view text {
+        background: #FFFFE0;
+    }
+    /*
+    #text_view text selection {
+        color: #8e8e18;
+        background: transparent;
+    }
+    */
+    """
+
     def __init__(self, application):
         super(NoteWindow, self).__init__()
         self.application = application
 
-        self.set_name('note_window')
-        self.set_title('Note')
+        self.set_name("note_window")
+        self.set_title("Note")
         self.set_resizable(True)
         self.set_keep_above(True)
         self.set_size_request(460, 500)
@@ -59,16 +62,29 @@ class NoteWindow(Gtk.Window):
 
         # Signals
         self.restore_position()
-        self.connect('delete_event', self.save_position)
+        self.connect("delete_event", self.save_position)
+
+        # Styles
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_data(self.styles.encode("UTF-8"))
+
+        style_context = self.get_style_context()
+        style_context.add_class("rounded")
+        style_context.add_class("default-decoration")
+        style_context.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+        )
 
         # UI
-
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
         hb.props.title = "Note"
         self.set_titlebar(hb)
 
         self.grid = Gtk.Grid()
+        self.grid.set_name("grid")
         self.grid.margin_left = 20
         self.grid.margin_right = 20
         self.grid.margin_top = 20
@@ -78,16 +94,25 @@ class NoteWindow(Gtk.Window):
 
         # Text View
 
-        self.textview = Gtk.TextView()
-        self.textview.set_name('text_view')
+        self.textview = GtkSource.View()
+        self.textview.set_name("text_view")
+        self.textview.set_auto_indent(True)
+        self.textview.set_indent_on_tab(True)
+        self.textview.set_smart_backspace(True)
+        self.textview.set_smart_home_end(True)
         self.textview.set_wrap_mode(Gtk.WrapMode.WORD)
 
-        self.textbuffer = self.textview.get_buffer()
+        lang_manager = GtkSource.LanguageManager().get_default()
+        language = lang_manager.get_language("markdown")
+
+        self.textbuffer = GtkSource.Buffer.new_with_language(language)
         self.textbuffer.connect("changed", self.on_text_buffer_change)
+        self.textview.set_buffer(self.textbuffer)
 
         self.checkout_text_buffer()
 
         scrolledwindow = Gtk.ScrolledWindow()
+        scrolledwindow.set_name("scroll_view")
         scrolledwindow.set_hexpand(True)
         scrolledwindow.set_vexpand(True)
         scrolledwindow.add(self.textview)
@@ -96,68 +121,61 @@ class NoteWindow(Gtk.Window):
 
     def checkout_text_buffer(self):
         if os.path.exists(self.application.notes_file_path):
-            with open(self.application.notes_file_path, 'r+') as f:
-                self.textbuffer.set_text(f.read())
+            with open(self.application.notes_file_path, "r+") as f:
+                self.textbuffer.set_text(f.read(), f.tell())
         else:
-            open(self.application.notes_file_path, 'a').close()
+            open(self.application.notes_file_path, "a").close()
 
     def commit_text_buffer(self):
         text = self.textbuffer.get_text(
-            self.textbuffer.get_start_iter(),
-            self.textbuffer.get_end_iter(),
-            False)
+            self.textbuffer.get_start_iter(), self.textbuffer.get_end_iter(), True
+        )
 
-        with open(self.application.notes_file_path, 'w+') as f:
+        with open(self.application.notes_file_path, "w+") as f:
             f.write(text)
 
     def restore_position(self):
         try:
-            x, y = self.application.settings['window-position']
+            x, y = self.application.settings["window-position"]
         except ValueError:
             self.set_position(Gtk.WindowPosition.CENTER)
         else:
             self.move(x, y)
 
     def save_position(self, widget, event):
-        self.application.settings['window-position'] = widget.get_position()
+        self.application.settings["window-position"] = widget.get_position()
 
     def on_text_buffer_change(self, widget):
         self.commit_text_buffer()
 
 
 class Application(Gtk.Application):
-    data_dir = os.path.join(GLib.get_user_data_dir(), 'notes')
+    data_dir = os.path.join(GLib.get_user_data_dir(), "notes")
 
-    def do_activate(self):
-        css_provider = Gtk.CssProvider()
-        css_provider.load_from_data(css.encode('UTF-8'))
-        screen = Gdk.Screen.get_default()
-
+    def __init__(self, *args, **kwargs):
         self.settings = Gio.Settings("org.gnome.notes")
-        self.notes_file_path = os.path.join(self.data_dir, 'notes.txt')
+        self.notes_file_path = os.path.join(self.data_dir, "notes.md")
 
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
 
+        Gtk.Application.__init__(self, *args, **kwargs)
+
+    def create_window(self):
         self.window = NoteWindow(self)
-
-        context = self.window.get_style_context()
-        context.add_provider_for_screen(
-            screen, css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
         self.add_window(self.window)
         self.window.show_all()
 
-    def do_startup(self):
-        Gtk.Application.do_startup(self)
+    def do_activate(self):
+        windows = self.get_windows()
 
-    def do_shutdown(self):
-        Gtk.Application.do_shutdown(self)
+        if windows:
+            for window in windows:
+                window.present()
+        else:
+            self.create_window()
 
-    def on_quit(self, widget, data):
-        self.quit()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     application = Application()
     application.run(None)
