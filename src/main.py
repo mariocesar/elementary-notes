@@ -137,12 +137,15 @@ class NoteWindow(Gtk.Window):
     def restore_position(self):
         try:
             x, y = self.application.settings["window-position"]
+            width, height = self.application.settings["window-size"]
         except ValueError:
             self.set_position(Gtk.WindowPosition.CENTER)
         else:
+            self.resize(width, height)
             self.move(x, y)
 
     def save_position(self, widget, event):
+        self.application.settings["window-size"] = widget.get_size()
         self.application.settings["window-position"] = widget.get_position()
 
     def on_text_buffer_change(self, widget):
