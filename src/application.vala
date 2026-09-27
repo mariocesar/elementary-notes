@@ -1,4 +1,4 @@
-namespace Notes {
+namespace Pad {
     // Not deprecated in C; only the Vala StyleContext class wrapper is.
     [CCode (cname = "gtk_style_context_add_provider_for_display", cheader_filename = "gtk/gtk.h")]
     extern void add_provider_for_display (Gdk.Display display, Gtk.StyleProvider provider, uint priority);
@@ -10,7 +10,7 @@ namespace Notes {
         public File file {
             owned get {
                 var path = settings.get_string ("note-file");
-                if (path == "") return File.new_build_filename (Environment.get_user_data_dir (), "notes", "Notes.md");
+                if (path == "") return File.new_build_filename (Environment.get_user_data_dir (), "pad", "Notes.md");
                 if (path.has_prefix ("~/")) path = Environment.get_home_dir () + path.substring (1);
                 return File.new_for_path (path);
             }

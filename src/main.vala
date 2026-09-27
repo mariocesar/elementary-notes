@@ -1,3 +1,3 @@
 int main (string[] args) {
-    return new Notes.Application ().run (args);
+    return new Pad.Application ().run (args);
 }

@@ -1,7 +1,7 @@
 // Loading and saving the note, in a temporary XDG_DATA_HOME.
-using Notes;
+using Pad;
 
-Notes.Application app;
+Pad.Application app;
 
 GtkSource.View open_note (out NoteWindow win) {
     win = new NoteWindow (app);
@@ -206,7 +206,7 @@ void add_window_tests () {
 int main (string[] args) {
     // Before anything reads and caches the home and user data dirs.
     try {
-        var home = DirUtils.make_tmp ("notes-test-XXXXXX");
+        var home = DirUtils.make_tmp ("pad-test-XXXXXX");
         Environment.set_variable ("HOME", home, true);
         Environment.set_variable ("XDG_DATA_HOME", Path.build_filename (home, "data"), true);
     } catch (Error e) {
@@ -217,7 +217,7 @@ int main (string[] args) {
         return 0;
     }
     Test.init (ref args);
-    app = new Notes.Application ();
+    app = new Pad.Application ();
     app.flags |= ApplicationFlags.NON_UNIQUE;
     try {
         app.register ();

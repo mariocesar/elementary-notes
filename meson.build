@@ -1,4 +1,4 @@
-project('elementary-notes', ['c', 'vala'],
+project('pad', ['c', 'vala'],
   version: '2.0.0',
   license: 'GPL-3.0-or-later',
   license_files: 'LICENSE',
@@ -6,7 +6,7 @@ project('elementary-notes', ['c', 'vala'],
   default_options: ['warning_level=1', 'buildtype=debugoptimized', 'werror=true'],
 )
 
-app_id = 'io.github.mariocesar.Notes'
+app_id = 'io.github.mariocesar.Pad'
 
 gnome = import('gnome')
 
@@ -17,7 +17,7 @@ add_project_arguments('-w', language: 'c')
 conf = configuration_data()
 conf.set('APP_ID', app_id)
 conf.set('VERSION', meson.project_version())
-conf.set('HOMEPAGE', 'https://github.com/mariocesar/elementary-notes')
+conf.set('HOMEPAGE', 'https://github.com/mariocesar/pad')
 conf.set('RESOURCE_PATH', '/' + app_id.replace('.', '/'))
 
 subdir('data')

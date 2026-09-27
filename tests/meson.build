@@ -1,5 +1,5 @@
 # Handled by GApplication before GTK starts. Blank displays make a regression fail fast instead of opening a window.
-test('cli-version', notes, args: ['--version'], suite: 'app', timeout: 10,
+test('cli-version', pad, args: ['--version'], suite: 'app', timeout: 10,
   env: {'WAYLAND_DISPLAY': '', 'DISPLAY': ''})
 
 desktop_file_validate = find_program('desktop-file-validate', required: false)

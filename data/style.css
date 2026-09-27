@@ -17,7 +17,7 @@ window.note headerbar {
   border-bottom-color: transparent;
 }
 
-/* Rounded where Notes draws its own frame (GNOME, elementary). Tiled windows stay square,
+/* Rounded where Pad draws its own frame (GNOME, elementary). Tiled windows stay square,
    and niri marks every window tiled because it rounds them itself. */
 window.note.csd:not(.tiled):not(.tiled-top):not(.tiled-bottom):not(.tiled-left):not(.tiled-right):not(.maximized):not(.fullscreen) {
   border-radius: 12px;

@@ -1,4 +1,4 @@
-public class Notes.NoteWindow : Gtk.ApplicationWindow {
+public class Pad.NoteWindow : Gtk.ApplicationWindow {
     // Edits are saved once typing pauses, and at least this often while it goes on.
     const int64 SAVE_PAUSE = 500 * TimeSpan.MILLISECOND;
     const int64 SAVE_MAX_WAIT = 5 * TimeSpan.SECOND;

@@ -1,6 +1,6 @@
-# Notes
+# Pad
 
-The simplest note taking app: one sticky note on your desktop, saved as you type. GTK 4 and Vala.
+The simplest note taking app: one sticky note on your desktop, saved as you type. GTK 4 and Vala. Formerly elementary-notes.
 
 <p align="center">
   <img src="screenshots/screenshot.png" width="460" alt="A yellow note window with a Markdown list, headings and a quote">
@@ -11,11 +11,11 @@ The simplest note taking app: one sticky note on your desktop, saved as you type
 - Opens as a floating note on GNOME, elementary and niri, at the size you last left it.
 - Offline, no accounts, no tracking.
 
-The note lives in `~/.local/share/notes/Notes.md`. To keep it somewhere else, like a synced folder:
+The note lives in `~/.local/share/pad/Notes.md`. To keep it somewhere else, like a synced folder:
 
-    gsettings set io.github.mariocesar.Notes note-file '~/Dropbox/Notes/Notes.md'
+    gsettings set io.github.mariocesar.Pad note-file '~/Dropbox/Notes/Notes.md'
 
-It takes effect the next time Notes opens. `gsettings reset io.github.mariocesar.Notes note-file` goes back to the default.
+It takes effect the next time Pad opens. `gsettings reset io.github.mariocesar.Pad note-file` goes back to the default.
 
 ## Install
 

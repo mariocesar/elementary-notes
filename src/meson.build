@@ -9,4 +9,4 @@ app_deps = [
   dependency('gtksourceview-5', version: '>= 5.10'),
 ]
 
-notes = executable('elementary-notes', 'main.vala', app_sources, dependencies: app_deps, install: true)
+pad = executable('pad', 'main.vala', app_sources, dependencies: app_deps, install: true)

@@ -1,11 +1,11 @@
 [Desktop Entry]
 Type=Application
-Name=Notes
+Name=Pad
 Comment=The simplest note taking app
-Exec=elementary-notes
+Exec=pad
 Icon=@APP_ID@
 Terminal=false
 Categories=Utility;TextEditor;
-Keywords=note;notes;markdown;text;
+Keywords=pad;note;notes;markdown;text;
 StartupNotify=true
 SingleMainWindow=true
