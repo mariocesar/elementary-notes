@@ -5,12 +5,11 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
     uint save_source;
 
     public NoteWindow (Application app) {
-        Object (application: app, title: "Note");
+        // Fixed size like a paper note; niri also opens fixed-size windows floating.
+        Object (application: app, title: "Note", resizable: false, default_width: 460, default_height: 500);
         this.app = app;
         add_css_class ("note");
         titlebar = new Gtk.HeaderBar () { decoration_layout = "close:" };
-        default_width = app.settings.get_int ("window-width");
-        default_height = app.settings.get_int ("window-height");
 
         buffer = new GtkSource.Buffer.with_language (GtkSource.LanguageManager.get_default ().get_language ("markdown")) {
             style_scheme = GtkSource.StyleSchemeManager.get_default ().get_scheme ("solarized-light"),
@@ -78,10 +77,6 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
             save_source = 0;
             save ();
         }
-        int width, height;
-        get_default_size (out width, out height);
-        app.settings.set_int ("window-width", width);
-        app.settings.set_int ("window-height", height);
         return base.close_request ();
     }
 }
