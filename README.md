@@ -3,7 +3,7 @@
 The simplest note taking app: one sticky note on your desktop, saved as you type. GTK 4 and Vala. Formerly elementary-notes.
 
 <p align="center">
-  <img src="screenshots/screenshot.png" width="460" alt="A yellow note window with a Markdown list, headings and a quote">
+  <img src="screenshots/pad.png" width="720" alt="Two yellow Pad notes: Notes.md with a Saturday to-do list and ideas, and pancakes.md with a recipe opened from the command line">
 </p>
 
 - Your default note, or any Markdown or text file with `pad README.md`, with Markdown highlighting and smart indentation.

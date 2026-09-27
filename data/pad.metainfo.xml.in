@@ -33,7 +33,8 @@
   </supports>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/mariocesar/pad/main/screenshots/screenshot.png</image>
+      <image>https://raw.githubusercontent.com/mariocesar/pad/main/screenshots/pad.png</image>
+      <caption>The default note and a recipe opened with pad pancakes.md</caption>
     </screenshot>
   </screenshots>
   <releases>

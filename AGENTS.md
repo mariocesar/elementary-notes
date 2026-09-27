@@ -7,7 +7,7 @@ A sticky note for the desktop, saved as you type; `pad FILE` opens any file the 
     src/              application and note window
     data/             desktop, metainfo, gschema and gresource templates; CSS, icon
     tests/            window, CLI and data tests
-    screenshots/      README image
+    screenshots/      README image and its sample notes, retaken with `just screenshots`
 
 ## Verify
 
