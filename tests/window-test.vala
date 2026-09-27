@@ -138,6 +138,19 @@ void add_window_tests () {
         assert_cmpstr (read_note (), CompareOperator.EQ, "edited\n");
     });
 
+    Test.add_func ("/note/opens-at-saved-size", () => {
+        app.settings.set_int ("window-width", 620);
+        app.settings.set_int ("window-height", 380);
+        var win = new NoteWindow (app);
+        int width, height;
+        win.get_default_size (out width, out height);
+        assert_cmpint (width, CompareOperator.EQ, 620);
+        assert_cmpint (height, CompareOperator.EQ, 380);
+        win.destroy ();
+        app.settings.reset ("window-width");
+        app.settings.reset ("window-height");
+    });
+
     Test.add_func ("/save/after-a-pause", () => {
         write_note ("start\n");
         NoteWindow win;

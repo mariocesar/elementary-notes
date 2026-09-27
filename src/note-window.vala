@@ -19,7 +19,8 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
 
     public NoteWindow (Application app) {
         // Opens at a fixed size so niri floats it, then becomes resizable once shown.
-        Object (application: app, title: "Note", resizable: false, default_width: 460, default_height: 500);
+        Object (application: app, title: "Note", resizable: false,
+            default_width: app.settings.get_int ("window-width"), default_height: app.settings.get_int ("window-height"));
         map.connect_after (() => Idle.add (() => {
             resizable = true;
             return Source.REMOVE;
@@ -135,6 +136,11 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
     public override bool close_request () {
         if (save_source != 0) Source.remove (save_source);
         save_source = 0;
+        // The allocated size, since GTK stops updating the default size while tiled, and niri tiles every window.
+        if (get_mapped () && !maximized && !fullscreened) {
+            ((Application) application).settings.set_int ("window-width", get_width ());
+            ((Application) application).settings.set_int ("window-height", get_height ());
+        }
         if (held == null) {
             held = application;
             held.hold ();
