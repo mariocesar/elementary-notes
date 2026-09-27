@@ -21,7 +21,7 @@ screenshots:
     [ -d "$HOME/.config/fontconfig" ] && ln -s "$HOME/.config/fontconfig" "$tmp/config/fontconfig"
     cp screenshots/samples/Notes.md "$tmp/data/pad/"
     cp screenshots/samples/pancakes.md "$tmp/"
-    gsettings set io.github.mariocesar.Pad window-sizes "[('$tmp/data/pad/Notes.md', 440, 470), ('$tmp/pancakes.md', 380, 320)]"
+    gsettings set io.github.mariocesar.Pad window-geometry "[('$tmp/data/pad/Notes.md', 440, 470, -1, -1), ('$tmp/pancakes.md', 380, 320, -1, -1)]"
     wid() { niri msg --json windows | jq ".[] | select(.app_id == \"io.github.mariocesar.Pad\" and .title == \"$1\") | .id"; }
     # Each window is shot while focused, so neither looks inactive.
     shot() {
