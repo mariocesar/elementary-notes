@@ -40,6 +40,7 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
             style_scheme = GtkSource.StyleSchemeManager.get_default ().get_scheme ("pad"),
         };
         view = new GtkSource.View.with_buffer (buffer) {
+            monospace = true,
             insert_spaces_instead_of_tabs = true,
             auto_indent = true,
             indent_on_tab = true,

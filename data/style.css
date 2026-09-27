@@ -22,3 +22,8 @@ window.note headerbar {
 window.note.csd:not(.tiled):not(.tiled-top):not(.tiled-bottom):not(.tiled-left):not(.tiled-right):not(.maximized):not(.fullscreen) {
   border-radius: 12px;
 }
+
+/* The view's monospace flag only adds a style class that not every theme styles. */
+window.note textview {
+  font-family: monospace;
+}

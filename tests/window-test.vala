@@ -82,6 +82,7 @@ void add_window_tests () {
         NoteWindow win;
         var view = open_note (out win);
         assert_cmpstr (((GtkSource.Buffer) view.buffer).style_scheme.id, CompareOperator.EQ, "pad");
+        assert_true (view.monospace);
         win.destroy ();
     });
 
