@@ -85,12 +85,39 @@ void add_window_tests () {
         close_note (win);
         assert_cmpstr (read_note (), CompareOperator.EQ, "bad \xff bytes");
     });
+
+    Test.add_func ("/note/custom-file", () => {
+        app.settings.set_string ("note-file", "~/Sync/Todo.md");
+        assert_cmpstr (app.file.get_path (), CompareOperator.EQ, Path.build_filename (Environment.get_home_dir (), "Sync", "Todo.md"));
+        write_note ("custom\n");
+        NoteWindow win;
+        var view = open_note (out win);
+        assert_cmpstr (view.buffer.text, CompareOperator.EQ, "custom\n");
+        win.destroy ();
+        app.settings.reset ("note-file");
+    });
+
+    Test.add_func ("/note/setting-changed-while-open", () => {
+        write_note ("first\n");
+        NoteWindow win;
+        var view = open_note (out win);
+        var first = app.file;
+        app.settings.set_string ("note-file", "~/Other.md");
+        view.buffer.text = "edited\n";
+        close_note (win);
+        assert_false (app.file.query_exists ());
+        app.settings.reset ("note-file");
+        assert_true (app.file.equal (first));
+        assert_cmpstr (read_note (), CompareOperator.EQ, "edited\n");
+    });
 }
 
 int main (string[] args) {
-    // Before anything reads and caches the user data dir.
+    // Before anything reads and caches the home and user data dirs.
     try {
-        Environment.set_variable ("XDG_DATA_HOME", DirUtils.make_tmp ("notes-test-XXXXXX"), true);
+        var home = DirUtils.make_tmp ("notes-test-XXXXXX");
+        Environment.set_variable ("HOME", home, true);
+        Environment.set_variable ("XDG_DATA_HOME", Path.build_filename (home, "data"), true);
     } catch (Error e) {
         error (e.message);
     }

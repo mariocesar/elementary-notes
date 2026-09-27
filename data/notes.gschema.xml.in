@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="@APP_ID@" path="@RESOURCE_PATH@/">
+    <key name="note-file" type="s">
+      <default>''</default>
+      <summary>Markdown file that holds the note</summary>
+      <description>An absolute path, or one starting with ~/. Empty uses Notes.md in the user data folder, usually ~/.local/share/notes/Notes.md. Takes effect the next time Notes opens.</description>
+    </key>
+  </schema>
+</schemalist>

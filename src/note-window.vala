@@ -1,5 +1,6 @@
 public class Notes.NoteWindow : Gtk.ApplicationWindow {
-    unowned Application app;
+    // Fixed while the window is open, so a changed setting never gets this note's text.
+    File file;
     GtkSource.View view;
     GtkSource.Buffer buffer;
     uint save_source;
@@ -11,7 +12,7 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
             resizable = true;
             return Source.REMOVE;
         }));
-        this.app = app;
+        file = app.file;
         add_css_class ("note");
         titlebar = new Gtk.HeaderBar () { decoration_layout = "close:" };
 
@@ -46,7 +47,7 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
     void load () {
         try {
             uint8[] contents;
-            app.file.load_contents (null, out contents, null);
+            file.load_contents (null, out contents, null);
             if (!((string) contents).validate ()) throw new ConvertError.ILLEGAL_SEQUENCE ("not UTF-8 text");
             // Loading is not an edit that undo can take back.
             buffer.begin_irreversible_action ();
@@ -56,7 +57,7 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
             // A new note; the file is created on the first save.
         } catch (Error e) {
             // Never overwrite a note that could not be read.
-            warning ("Reading %s: %s", app.file.get_path (), e.message);
+            warning ("Reading %s: %s", file.get_path (), e.message);
             view.editable = false;
             title = "Note (read only)";
         }
@@ -65,12 +66,12 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
     void save () {
         try {
             try {
-                app.file.get_parent ().make_directory_with_parents ();
+                file.get_parent ().make_directory_with_parents ();
             } catch (IOError.EXISTS e) {}
-            app.file.replace_contents (buffer.text.data, null, false, FileCreateFlags.NONE, null);
+            file.replace_contents (buffer.text.data, null, false, FileCreateFlags.NONE, null);
             title = "Note";
         } catch (Error e) {
-            warning ("Saving %s: %s", app.file.get_path (), e.message);
+            warning ("Saving %s: %s", file.get_path (), e.message);
             title = "Note (not saved)";
         }
     }

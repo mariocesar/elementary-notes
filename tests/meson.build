@@ -12,6 +12,7 @@ if appstreamcli.found()
   test('metainfo', appstreamcli, args: ['validate', '--no-net', metainfo_file], suite: 'data')
 endif
 
-# Needs a display; skips itself without one.
+# Needs a display; skips itself without one. Settings stay in memory, never in the user's dconf.
 window_test = executable('window-test', 'window-test.vala', app_sources, dependencies: app_deps)
-test('window', window_test, suite: 'widget', protocol: 'tap', args: ['--tap'])
+test('window', window_test, suite: 'widget', protocol: 'tap', args: ['--tap'], depends: gschemas,
+  env: {'GSETTINGS_SCHEMA_DIR': meson.project_build_root() / 'data', 'GSETTINGS_BACKEND': 'memory'})
