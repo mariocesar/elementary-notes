@@ -39,7 +39,7 @@ devenv = environment()
 devenv.set('GSETTINGS_SCHEMA_DIR', meson.current_build_dir())
 meson.add_devenv(devenv)
 
-install_data('icons/pad.png',
-  rename: app_id + '.png',
-  install_dir: datadir / 'icons' / 'hicolor' / '128x128' / 'apps',
+install_data('icons/pad.svg',
+  rename: app_id + '.svg',
+  install_dir: datadir / 'icons' / 'hicolor' / 'scalable' / 'apps',
 )

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="sheet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#faf18c"/>
+      <stop offset="1" stop-color="#f1cb5a"/>
+    </linearGradient>
+    <linearGradient id="stack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e2c04e"/>
+      <stop offset="1" stop-color="#c9a232"/>
+    </linearGradient>
+    <linearGradient id="flap" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdf6a0"/>
+      <stop offset="1" stop-color="#f6df78"/>
+    </linearGradient>
+    <filter id="blur" x="-10%" y="-100%" width="120%" height="300%">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+  </defs>
+  <ellipse cx="64" cy="112" rx="60" ry="3" fill="#000" opacity="0.35" filter="url(#blur)"/>
+  <rect x="3" y="4" width="122" height="107" rx="2" fill="url(#stack)"/>
+  <rect x="3" y="106" width="122" height="5" rx="2" fill="#c49b2a"/>
+  <path d="M5,4 H123 a2,2 0 0 1 2,2 V52 C119,80 100,98 66,106 H5 a2,2 0 0 1 -2,-2 V6 a2,2 0 0 1 2,-2 Z" fill="url(#sheet)"/>
+  <path d="M5,4 H123 a2,2 0 0 1 2,2 V17 H3 V6 a2,2 0 0 1 2,-2 Z" fill="#f4dd6c"/>
+  <rect x="3" y="17" width="122" height="1.2" fill="#fcfa97"/>
+  <path d="M125,52 C119,80 100,98 66,106 C92,105 108,100 117,92 C122,82 124,68 125,52 Z" fill="url(#flap)"/>
+  <path d="M66,106 C92,105 108,100 117,92" fill="none" stroke="#d9b746" stroke-width="1"/>
+  <g fill="none" stroke="#b74746" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="rotate(-9 62 50)">
+      <path d="M33,62 L34,41 H42 C51,41 51,53 42,53 H34"/>
+      <path d="M55,62 L63,40 L71,61 M58,54 H68"/>
+      <path d="M79,61 L80,40 H84 C97,40 97,61 84,61 Z"/>
+    </g>
+    <path d="M26,79 C52,75 78,70 104,65" stroke-width="3.2"/>
+  </g>
+</svg>
