@@ -4,6 +4,11 @@ namespace Pad {
     extern void add_provider_for_display (Gdk.Display display, Gtk.StyleProvider provider, uint priority);
 
     public class Application : Gtk.Application {
+        // Size of a file's first window, and how many files window-sizes remembers.
+        const int DEFAULT_WIDTH = 460;
+        const int DEFAULT_HEIGHT = 500;
+        const int MAX_SIZES = 100;
+
         public GLib.Settings settings { get; private set; }
 
         // The note opened without a file: the note-file setting, or Notes.md in the user data folder.
@@ -66,10 +71,47 @@ namespace Pad {
 
         // One window per file: the file's open window, or a new one.
         public NoteWindow window_for (File file) {
+            // A symlink and its target are the same note: one window, one remembered size.
+            var real = file.get_path () != null ? Posix.realpath (file.get_path ()) : null;
+            var note = real != null ? File.new_for_path (real) : file;
             foreach (var window in get_windows ()) {
-                if (((NoteWindow) window).file.equal (file)) return (NoteWindow) window;
+                if (((NoteWindow) window).file.equal (note)) return (NoteWindow) window;
             }
-            return new NoteWindow (this, file);
+            return new NoteWindow (this, note);
+        }
+
+        // The size the file's window had when last closed, or the default note size.
+        public void window_size (File file, out int width, out int height) {
+            width = DEFAULT_WIDTH;
+            height = DEFAULT_HEIGHT;
+            var sizes = settings.get_value ("window-sizes");
+            for (size_t i = 0; i < sizes.n_children (); i++) {
+                string path;
+                int w, h;
+                sizes.get_child (i, "(sii)", out path, out w, out h);
+                if (path == file.get_path ()) {
+                    width = w;
+                    height = h;
+                    return;
+                }
+            }
+        }
+
+        // Puts the file first in window-sizes with its new size, dropping the oldest past MAX_SIZES.
+        public void remember_size (File file, int width, int height) {
+            var sizes = settings.get_value ("window-sizes");
+            var builder = new VariantBuilder (new VariantType ("a(sii)"));
+            builder.add ("(sii)", file.get_path (), width, height);
+            var kept = 1;
+            for (size_t i = 0; i < sizes.n_children () && kept < MAX_SIZES; i++) {
+                string path;
+                int w, h;
+                sizes.get_child (i, "(sii)", out path, out w, out h);
+                if (path == file.get_path ()) continue;
+                builder.add ("(sii)", path, w, h);
+                kept++;
+            }
+            settings.set_value ("window-sizes", builder.end ());
         }
     }
 }

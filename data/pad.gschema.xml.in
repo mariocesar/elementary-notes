@@ -6,15 +6,10 @@
       <summary>Markdown file that holds the note</summary>
       <description>An absolute path, or one starting with ~/. Empty uses Notes.md in the user data folder, usually ~/.local/share/pad/Notes.md. Takes effect the next time Pad opens.</description>
     </key>
-    <key name="window-width" type="i">
-      <range min="200" max="10000"/>
-      <default>460</default>
-      <summary>Window width, remembered between launches</summary>
-    </key>
-    <key name="window-height" type="i">
-      <range min="200" max="10000"/>
-      <default>500</default>
-      <summary>Window height, remembered between launches</summary>
+    <key name="window-sizes" type="a(sii)">
+      <default>[]</default>
+      <summary>Window size of each file, as (path, width, height)</summary>
+      <description>The size a file's window had when it was last closed, most recent first, up to 100 files.</description>
     </key>
   </schema>
 </schemalist>

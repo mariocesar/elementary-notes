@@ -7,6 +7,7 @@ app_deps = [
   dependency('gio-2.0', version: '>= 2.80'),
   dependency('gtk4', version: '>= 4.20'),
   dependency('gtksourceview-5', version: '>= 5.10'),
+  meson.get_compiler('vala').find_library('posix'),
 ]
 
 pad = executable('pad', 'main.vala', app_sources, dependencies: app_deps, install: true)

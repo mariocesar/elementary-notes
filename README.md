@@ -8,7 +8,7 @@ The simplest note taking app: one sticky note on your desktop, saved as you type
 
 - Your default note, or any Markdown or text file with `pad README.md`, with Markdown highlighting and smart indentation.
 - Saved half a second after you stop typing, at least every five seconds while you keep going, and when you switch away or close it.
-- Opens as a floating note on GNOME, elementary and niri, at the size you last left it.
+- Opens as a floating note on GNOME, elementary and niri, each file at the size you last left it.
 - Offline, no accounts, no tracking.
 
 ## Using it

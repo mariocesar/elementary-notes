@@ -138,17 +138,54 @@ void add_window_tests () {
         assert_cmpstr (read_note (), CompareOperator.EQ, "edited\n");
     });
 
-    Test.add_func ("/note/opens-at-saved-size", () => {
-        app.settings.set_int ("window-width", 620);
-        app.settings.set_int ("window-height", 380);
-        var win = new NoteWindow (app, app.default_file);
+    Test.add_func ("/size/per-file", () => {
+        var sized = File.new_build_filename (Environment.get_home_dir (), "sized.md");
+        var fresh = File.new_build_filename (Environment.get_home_dir (), "fresh.md");
+        app.remember_size (sized, 620, 380);
         int width, height;
+        var win = app.window_for (sized);
         win.get_default_size (out width, out height);
-        assert_cmpint (width, CompareOperator.EQ, 620);
-        assert_cmpint (height, CompareOperator.EQ, 380);
+        assert_true (width == 620 && height == 380);
         win.destroy ();
-        app.settings.reset ("window-width");
-        app.settings.reset ("window-height");
+        win = app.window_for (fresh);
+        win.get_default_size (out width, out height);
+        assert_true (width == 460 && height == 500);
+        win.destroy ();
+        app.settings.reset ("window-sizes");
+    });
+
+    Test.add_func ("/size/most-recent-first", () => {
+        for (var i = 0; i < 105; i++) app.remember_size (File.new_for_path ("/notes/%d.md".printf (i)), 300 + i, 300);
+        app.remember_size (File.new_for_path ("/notes/50.md"), 999, 300);
+        var sizes = app.settings.get_value ("window-sizes");
+        assert_cmpuint ((uint) sizes.n_children (), CompareOperator.EQ, 100);
+        string path;
+        int width, height;
+        sizes.get_child (0, "(sii)", out path, out width, out height);
+        assert_cmpstr (path, CompareOperator.EQ, "/notes/50.md");
+        assert_cmpint (width, CompareOperator.EQ, 999);
+        // Past the limit the oldest go first: 0 to 4 are dropped, 5 is the oldest kept.
+        app.window_size (File.new_for_path ("/notes/4.md"), out width, out height);
+        assert_cmpint (width, CompareOperator.EQ, 460);
+        app.window_size (File.new_for_path ("/notes/5.md"), out width, out height);
+        assert_cmpint (width, CompareOperator.EQ, 305);
+        app.settings.reset ("window-sizes");
+    });
+
+    Test.add_func ("/size/symlink-is-the-same-note", () => {
+        var target = Path.build_filename (Environment.get_home_dir (), "target.md");
+        var link = Path.build_filename (Environment.get_home_dir (), "link.md");
+        try {
+            FileUtils.set_contents (target, "");
+        } catch (Error e) {
+            error (e.message);
+        }
+        FileUtils.symlink (target, link);
+        var win = app.window_for (File.new_for_path (target));
+        assert_true (app.window_for (File.new_for_path (link)) == win);
+        win.destroy ();
+        FileUtils.unlink (link);
+        FileUtils.unlink (target);
     });
 
     Test.add_func ("/app/one-window-per-file", () => {
