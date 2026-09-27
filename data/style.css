@@ -1,0 +1,14 @@
+@define-color note_bg #ffffe0;
+
+window.note,
+window.note headerbar,
+window.note textview,
+window.note textview text {
+  background-color: @note_bg;
+}
+
+window.note headerbar {
+  background-image: none;
+  box-shadow: none;
+  border-bottom-color: @note_bg;
+}
