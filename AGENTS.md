@@ -1,12 +1,12 @@
 # Pad
 
-One sticky note for the desktop, saved as you type. Vala, GTK 4, GtkSourceView 5, Meson.
+A sticky note for the desktop, saved as you type; `pad FILE` opens any file the same way. Vala, GTK 4, GtkSourceView 5, Meson.
 
 ## Layout
 
     src/              application and note window
     data/             desktop, metainfo, gschema and gresource templates; CSS, icon
-    tests/            window and data tests
+    tests/            window, CLI and data tests
     screenshots/      README image
 
 ## Verify

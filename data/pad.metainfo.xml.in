@@ -7,9 +7,10 @@
   <summary>The simplest note taking app</summary>
   <description>
     <p>
-      Pad is a single sticky note for your desktop. Everything you type is saved to one
+      Pad is a sticky note for your desktop. Everything you type is saved to one
       Markdown file as you write, with Markdown highlighting and smart indentation.
     </p>
+    <p>Run pad with a file name to open any Markdown or text file the same way.</p>
     <p>Pad works entirely offline and collects no data.</p>
   </description>
   <developer id="io.github.mariocesar">
