@@ -6,7 +6,7 @@ run:
 test:
     meson test -C build
 
-# Install into ~/.local: elementary-notes on the PATH, desktop entry, icon, metadata and settings schema.
+# Install into ~/.local: elementary-notes on the PATH, desktop entry, icon and metadata.
 install:
     test -d build-local || meson setup build-local --prefix=$HOME/.local -Dbuildtype=release
     meson install -C build-local

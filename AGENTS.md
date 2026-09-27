@@ -5,7 +5,7 @@ One sticky note for the desktop, saved as you type. Vala, GTK 4, GtkSourceView 5
 ## Layout
 
     src/              application and note window
-    data/             desktop, metainfo, gschema and gresource templates; CSS, icon
+    data/             desktop, metainfo and gresource templates; CSS, icon
     tests/            window and data tests
     screenshots/      README image
 
