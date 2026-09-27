@@ -48,6 +48,9 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
 
     void save () {
         try {
+            try {
+                app.file.get_parent ().make_directory_with_parents ();
+            } catch (IOError.EXISTS e) {}
             app.file.replace_contents (buffer.text.data, null, false, FileCreateFlags.NONE, null);
         } catch (Error e) {
             warning ("Saving %s: %s", app.file.get_path (), e.message);
