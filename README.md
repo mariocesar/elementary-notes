@@ -8,7 +8,7 @@ The simplest note taking app: one sticky note on your desktop, saved as you type
 
 - One note, one Markdown file, with Markdown highlighting and smart indentation.
 - Saved half a second after you stop typing, and when you close the window.
-- A floating window at a fixed note size, on GNOME, elementary and niri.
+- Opens as a floating 460×500 note on GNOME, elementary and niri, and resizes like any window.
 - Offline, no accounts, no tracking.
 
 The note lives in `~/.local/share/notes/Notes.md`. To keep it in a synced folder, replace that file with a symlink; Notes writes through it.

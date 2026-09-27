@@ -5,8 +5,12 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
     uint save_source;
 
     public NoteWindow (Application app) {
-        // Fixed size like a paper note; niri also opens fixed-size windows floating.
+        // Opens at a fixed size so niri floats it, then becomes resizable once shown.
         Object (application: app, title: "Note", resizable: false, default_width: 460, default_height: 500);
+        map.connect_after (() => Idle.add (() => {
+            resizable = true;
+            return Source.REMOVE;
+        }));
         this.app = app;
         add_css_class ("note");
         titlebar = new Gtk.HeaderBar () { decoration_layout = "close:" };
