@@ -17,15 +17,19 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
     bool save_again;
     // Held from closing until the last write is done, so the app doesn't quit mid-write.
     GLib.Application? held;
+    // Where the window was last closed, -1 when unknown.
+    int saved_x;
+    int saved_y;
 
     public NoteWindow (Application app, File file) {
         // Opens at a fixed size so niri floats it, then becomes resizable once shown.
         Object (application: app, title: file.get_basename (), resizable: false);
         int width, height;
-        app.window_size (file, out width, out height);
+        app.window_geometry (file, out width, out height, out saved_x, out saved_y);
         set_default_size (width, height);
         map.connect_after (() => Idle.add (() => {
             resizable = true;
+            if (saved_x >= 0 && saved_y >= 0) move_to (saved_x, saved_y);
             return Source.REMOVE;
         }));
         this.file = file;
@@ -145,12 +149,43 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
         if (save_source != 0) Source.remove (save_source);
         save_source = 0;
         // The allocated size, since GTK stops updating the default size while tiled, and niri tiles every window.
-        if (get_mapped () && !maximized && !fullscreened) ((Application) application).remember_size (file, get_width (), get_height ());
+        if (get_mapped () && !maximized && !fullscreened) {
+            int x, y;
+            get_position (out x, out y);
+            ((Application) application).remember_geometry (file, get_width (), get_height (), x, y);
+        }
         if (held == null) {
             held = application;
             held.hold ();
         }
         save.begin ();
         return base.close_request ();
+    }
+
+#if X11
+    // GTK deprecates its X11 API as a whole since 4.18; the C function itself is fine.
+    [CCode (cname = "gdk_x11_surface_get_xid", cheader_filename = "gdk/x11/gdkx.h")]
+    extern static X.Window xid (Gdk.X11.Surface surface);
+#endif
+
+    // Only X11 lets a window know and set its own position; on Wayland the desktop places it,
+    // and the position is -1.
+    public void get_position (out int x, out int y) {
+        x = y = -1;
+#if X11
+        var surface = get_surface () as Gdk.X11.Surface;
+        if (surface == null) return;
+        unowned X.Display display = ((Gdk.X11.Display) surface.display).get_xdisplay ();
+        X.Window child;
+        display.translate_coordinates (xid (surface), display.default_root_window (), 0, 0, out x, out y, out child);
+#endif
+    }
+
+    public void move_to (int x, int y) {
+#if X11
+        var surface = get_surface () as Gdk.X11.Surface;
+        if (surface == null) return;
+        ((Gdk.X11.Display) surface.display).get_xdisplay ().move_window (xid (surface), x, y);
+#endif
     }
 }

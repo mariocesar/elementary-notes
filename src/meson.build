@@ -9,5 +9,11 @@ app_deps = [
   dependency('gtksourceview-5', version: '>= 5.10'),
   meson.get_compiler('vala').find_library('posix'),
 ]
+# Window positions are only readable and settable on X11.
+gtk_x11 = dependency('gtk4-x11', required: false)
+if gtk_x11.found()
+  app_deps += [gtk_x11, dependency('x11')]
+  add_project_arguments('-D', 'X11', language: 'vala')
+endif
 
 pad = executable('pad', 'main.vala', app_sources, dependencies: app_deps, install: true)

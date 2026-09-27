@@ -165,7 +165,7 @@ void add_window_tests () {
     Test.add_func ("/size/per-file", () => {
         var sized = File.new_build_filename (Environment.get_home_dir (), "sized.md");
         var fresh = File.new_build_filename (Environment.get_home_dir (), "fresh.md");
-        app.remember_size (sized, 620, 380);
+        app.remember_geometry (sized, 620, 380, -1, -1);
         int width, height;
         var win = app.window_for (sized);
         win.get_default_size (out width, out height);
@@ -175,25 +175,62 @@ void add_window_tests () {
         win.get_default_size (out width, out height);
         assert_true (width == 460 && height == 500);
         win.destroy ();
-        app.settings.reset ("window-sizes");
+        app.settings.reset ("window-geometry");
     });
 
     Test.add_func ("/size/most-recent-first", () => {
-        for (var i = 0; i < 105; i++) app.remember_size (File.new_for_path ("/notes/%d.md".printf (i)), 300 + i, 300);
-        app.remember_size (File.new_for_path ("/notes/50.md"), 999, 300);
-        var sizes = app.settings.get_value ("window-sizes");
+        for (var i = 0; i < 105; i++) app.remember_geometry (File.new_for_path ("/notes/%d.md".printf (i)), 300 + i, 300, -1, -1);
+        app.remember_geometry (File.new_for_path ("/notes/50.md"), 999, 300, -1, -1);
+        var sizes = app.settings.get_value ("window-geometry");
         assert_cmpuint ((uint) sizes.n_children (), CompareOperator.EQ, 100);
         string path;
-        int width, height;
-        sizes.get_child (0, "(sii)", out path, out width, out height);
+        int width, height, x, y;
+        sizes.get_child (0, "(siiii)", out path, out width, out height, out x, out y);
         assert_cmpstr (path, CompareOperator.EQ, "/notes/50.md");
         assert_cmpint (width, CompareOperator.EQ, 999);
         // Past the limit the oldest go first: 0 to 4 are dropped, 5 is the oldest kept.
-        app.window_size (File.new_for_path ("/notes/4.md"), out width, out height);
+        app.window_geometry (File.new_for_path ("/notes/4.md"), out width, out height, out x, out y);
         assert_cmpint (width, CompareOperator.EQ, 460);
-        app.window_size (File.new_for_path ("/notes/5.md"), out width, out height);
+        app.window_geometry (File.new_for_path ("/notes/5.md"), out width, out height, out x, out y);
         assert_cmpint (width, CompareOperator.EQ, 305);
-        app.settings.reset ("window-sizes");
+        app.settings.reset ("window-geometry");
+    });
+
+    Test.add_func ("/geometry/unknown-position-keeps-the-last", () => {
+        var file = File.new_for_path ("/notes/moved.md");
+        app.remember_geometry (file, 400, 300, 150, 120);
+        app.remember_geometry (file, 500, 350, -1, -1);
+        int width, height, x, y;
+        app.window_geometry (file, out width, out height, out x, out y);
+        assert_true (width == 500 && height == 350 && x == 150 && y == 120);
+        app.settings.reset ("window-geometry");
+    });
+
+    // Run under Xvfb by the window-x11 test; skipped on Wayland, where no app knows its position.
+    Test.add_func ("/geometry/x11-position", () => {
+#if X11
+        if (!(Gdk.Display.get_default () is Gdk.X11.Display)) {
+            Test.skip ("needs an X11 display");
+            return;
+        }
+        var file = File.new_build_filename (Environment.get_home_dir (), "placed.md");
+        app.remember_geometry (file, 400, 300, 150, 120);
+        var win = app.window_for (file);
+        win.present ();
+        run_for (500);
+        int x, y;
+        win.get_position (out x, out y);
+        assert_true (x == 150 && y == 120);
+        win.move_to (260, 90);
+        run_for (300);
+        close_note (win);
+        int width, height;
+        app.window_geometry (file, out width, out height, out x, out y);
+        assert_true (x == 260 && y == 90);
+        app.settings.reset ("window-geometry");
+#else
+        Test.skip ("built without X11");
+#endif
     });
 
     Test.add_func ("/size/symlink-is-the-same-note", () => {

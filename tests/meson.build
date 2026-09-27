@@ -17,6 +17,13 @@ window_test = executable('window-test', 'window-test.vala', app_sources, depende
 test('window', window_test, suite: 'widget', protocol: 'tap', args: ['--tap'], depends: gschemas,
   env: {'GSETTINGS_SCHEMA_DIR': meson.project_build_root() / 'data', 'GSETTINGS_BACKEND': 'memory'})
 
+# The same tests on a headless X11 server, where window positions can be tested.
+xvfb_run = find_program('xvfb-run', required: false)
+if xvfb_run.found()
+  test('window-x11', xvfb_run, args: ['-a', window_test, '--tap'], suite: 'widget', protocol: 'tap', depends: gschemas,
+    env: {'GSETTINGS_SCHEMA_DIR': meson.project_build_root() / 'data', 'GSETTINGS_BACKEND': 'memory', 'GDK_BACKEND': 'x11'})
+endif
+
 # A real primary instance plus forwarded commands, isolated on a private bus and a headless display.
 test('cli', find_program('sh'), args: [files('cli-test.sh'), pad], suite: 'app', timeout: 60,
   depends: gschemas, env: {'GSETTINGS_SCHEMA_DIR': meson.project_build_root() / 'data'})

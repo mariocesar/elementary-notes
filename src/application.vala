@@ -4,10 +4,10 @@ namespace Pad {
     extern void add_provider_for_display (Gdk.Display display, Gtk.StyleProvider provider, uint priority);
 
     public class Application : Gtk.Application {
-        // Size of a file's first window, and how many files window-sizes remembers.
+        // Size of a file's first window, and how many files window-geometry remembers.
         const int DEFAULT_WIDTH = 460;
         const int DEFAULT_HEIGHT = 500;
-        const int MAX_SIZES = 100;
+        const int MAX_WINDOWS = 100;
 
         public GLib.Settings settings { get; private set; }
 
@@ -81,38 +81,46 @@ namespace Pad {
             return new NoteWindow (this, note);
         }
 
-        // The size the file's window had when last closed, or the default note size.
-        public void window_size (File file, out int width, out int height) {
+        // How the file's window was when last closed: the default note size and no position (-1) if never.
+        public void window_geometry (File file, out int width, out int height, out int x, out int y) {
             width = DEFAULT_WIDTH;
             height = DEFAULT_HEIGHT;
-            var sizes = settings.get_value ("window-sizes");
-            for (size_t i = 0; i < sizes.n_children (); i++) {
+            x = y = -1;
+            var windows = settings.get_value ("window-geometry");
+            for (size_t i = 0; i < windows.n_children (); i++) {
                 string path;
-                int w, h;
-                sizes.get_child (i, "(sii)", out path, out w, out h);
+                int w, h, px, py;
+                windows.get_child (i, "(siiii)", out path, out w, out h, out px, out py);
                 if (path == file.get_path ()) {
                     width = w;
                     height = h;
+                    x = px;
+                    y = py;
                     return;
                 }
             }
         }
 
-        // Puts the file first in window-sizes with its new size, dropping the oldest past MAX_SIZES.
-        public void remember_size (File file, int width, int height) {
-            var sizes = settings.get_value ("window-sizes");
-            var builder = new VariantBuilder (new VariantType ("a(sii)"));
-            builder.add ("(sii)", file.get_path (), width, height);
-            var kept = 1;
-            for (size_t i = 0; i < sizes.n_children () && kept < MAX_SIZES; i++) {
-                string path;
+        // Puts the file first in window-geometry, dropping the oldest past MAX_WINDOWS.
+        // An unknown position (-1, as on Wayland) keeps the one stored before.
+        public void remember_geometry (File file, int width, int height, int x, int y) {
+            if (x < 0 || y < 0) {
                 int w, h;
-                sizes.get_child (i, "(sii)", out path, out w, out h);
+                window_geometry (file, out w, out h, out x, out y);
+            }
+            var windows = settings.get_value ("window-geometry");
+            var builder = new VariantBuilder (new VariantType ("a(siiii)"));
+            builder.add ("(siiii)", file.get_path (), width, height, x, y);
+            var kept = 1;
+            for (size_t i = 0; i < windows.n_children () && kept < MAX_WINDOWS; i++) {
+                string path;
+                int w, h, px, py;
+                windows.get_child (i, "(siiii)", out path, out w, out h, out px, out py);
                 if (path == file.get_path ()) continue;
-                builder.add ("(sii)", path, w, h);
+                builder.add ("(siiii)", path, w, h, px, py);
                 kept++;
             }
-            settings.set_value ("window-sizes", builder.end ());
+            settings.set_value ("window-geometry", builder.end ());
         }
     }
 }

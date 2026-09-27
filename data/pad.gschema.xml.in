@@ -6,10 +6,10 @@
       <summary>Markdown file that holds the note</summary>
       <description>An absolute path, or one starting with ~/. Empty uses Notes.md in the user data folder, usually ~/.local/share/pad/Notes.md. Takes effect the next time Pad opens.</description>
     </key>
-    <key name="window-sizes" type="a(sii)">
+    <key name="window-geometry" type="a(siiii)">
       <default>[]</default>
-      <summary>Window size of each file, as (path, width, height)</summary>
-      <description>The size a file's window had when it was last closed, most recent first, up to 100 files.</description>
+      <summary>Window size and position of each file, as (path, width, height, x, y)</summary>
+      <description>How a file's window was when it was last closed, most recent first, up to 100 files. The position is -1 where the desktop doesn't let apps know it, as on Wayland.</description>
     </key>
   </schema>
 </schemalist>
