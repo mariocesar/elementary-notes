@@ -13,6 +13,11 @@ void close_note (NoteWindow win) {
     bool stop;
     Signal.emit_by_name (win, "close-request", out stop);
     win.destroy ();
+    wait_for_save (win);
+}
+
+void wait_for_save (NoteWindow win) {
+    while (win.saving) MainContext.default ().iteration (true);
 }
 
 // Runs the main loop, so save timeouts can fire.
@@ -29,6 +34,14 @@ void type_text (GtkSource.View view, string text) {
     Gtk.TextIter end;
     view.buffer.get_end_iter (out end);
     view.buffer.insert (ref end, text, -1);
+}
+
+uint64 inode () {
+    try {
+        return app.file.query_info ("unix::inode", FileQueryInfoFlags.NONE).get_attribute_uint64 ("unix::inode");
+    } catch (Error e) {
+        error (e.message);
+    }
 }
 
 void write_note (string text) {
@@ -133,6 +146,7 @@ void add_window_tests () {
         run_for (300);
         assert_cmpstr (read_note (), CompareOperator.EQ, "start\n");
         run_for (400);
+        wait_for_save (win);
         assert_cmpstr (read_note (), CompareOperator.EQ, "start\na");
         close_note (win);
     });
@@ -146,9 +160,33 @@ void add_window_tests () {
             type_text (view, "x");
             run_for (250);
         }
+        wait_for_save (win);
         assert_true (read_note ().length >= 20);
         close_note (win);
         assert_cmpstr (read_note (), CompareOperator.EQ, string.nfill (23, 'x'));
+    });
+
+    Test.add_func ("/save/skips-unchanged", () => {
+        write_note ("same\n");
+        var before = inode ();
+        NoteWindow win;
+        var view = open_note (out win);
+        type_text (view, "typo");
+        view.buffer.undo ();
+        run_for (700);
+        close_note (win);
+        assert_true (inode () == before);
+    });
+
+    Test.add_func ("/save/edit-during-write", () => {
+        write_note ("");
+        NoteWindow win;
+        var view = open_note (out win);
+        type_text (view, "a");
+        while (!win.saving) MainContext.default ().iteration (true);
+        type_text (view, "b");
+        close_note (win);
+        assert_cmpstr (read_note (), CompareOperator.EQ, "ab");
     });
 }
 

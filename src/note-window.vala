@@ -11,6 +11,11 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
     // Monotonic times of the first and last edit waiting for save_source.
     int64 first_edit;
     int64 last_edit;
+    // Whether a write is running; the file is never written twice at once.
+    public bool saving { get; private set; }
+    bool save_again;
+    // Held from closing until the last write is done, so the app doesn't quit mid-write.
+    GLib.Application? held;
 
     public NoteWindow (Application app) {
         // Opens at a fixed size so niri floats it, then becomes resizable once shown.
@@ -59,7 +64,7 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
                 wait_to_save (due - now);
             } else {
                 save_source = 0;
-                save ();
+                save.begin ();
             }
             return Source.REMOVE;
         });
@@ -74,6 +79,7 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
             buffer.begin_irreversible_action ();
             buffer.text = (string) contents;
             buffer.end_irreversible_action ();
+            buffer.set_modified (false);
         } catch (IOError.NOT_FOUND e) {
             // A new note; the file is created on the first save.
         } catch (Error e) {
@@ -84,25 +90,49 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
         }
     }
 
-    void save () {
-        try {
-            try {
-                file.get_parent ().make_directory_with_parents ();
-            } catch (IOError.EXISTS e) {}
-            file.replace_contents (buffer.text.data, null, false, FileCreateFlags.NONE, null);
-            title = "Note";
-        } catch (Error e) {
-            warning ("Saving %s: %s", file.get_path (), e.message);
-            title = "Note (not saved)";
+    // Writes the text off the main thread. A save asked for during a write runs right after it.
+    async void save () {
+        if (saving) {
+            save_again = true;
+            return;
         }
+        saving = true;
+        do {
+            save_again = false;
+            // Unmodified since the last save, or undone back to it.
+            if (!buffer.get_modified ()) continue;
+            // Edits made during the write mark the buffer modified again.
+            buffer.set_modified (false);
+            var bytes = new Bytes (buffer.text.data);
+            try {
+                try {
+                    yield file.replace_contents_bytes_async (bytes, null, false, FileCreateFlags.NONE, null, null);
+                } catch (IOError.NOT_FOUND e) {
+                    file.get_parent ().make_directory_with_parents ();
+                    yield file.replace_contents_bytes_async (bytes, null, false, FileCreateFlags.NONE, null, null);
+                }
+                title = "Note";
+            } catch (Error e) {
+                // Kept modified: the next edit or closing tries again.
+                warning ("Saving %s: %s", file.get_path (), e.message);
+                title = "Note (not saved)";
+                buffer.set_modified (true);
+                break;
+            }
+        } while (save_again);
+        saving = false;
+        if (held != null) held.release ();
+        held = null;
     }
 
     public override bool close_request () {
-        if (save_source != 0) {
-            Source.remove (save_source);
-            save_source = 0;
-            save ();
+        if (save_source != 0) Source.remove (save_source);
+        save_source = 0;
+        if (held == null) {
+            held = application;
+            held.hold ();
         }
+        save.begin ();
         return base.close_request ();
     }
 }
