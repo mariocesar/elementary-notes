@@ -16,7 +16,9 @@ screenshots:
     tmp=$(mktemp -d)
     trap 'pkill -x pad || true; rm -rf "$tmp"' EXIT
     export GSETTINGS_SCHEMA_DIR=build/data GSETTINGS_BACKEND=keyfile XDG_CONFIG_HOME=$tmp/config XDG_DATA_HOME=$tmp/data
-    mkdir -p "$tmp/data/pad"
+    mkdir -p "$tmp/data/pad" "$tmp/config"
+    # Settings stay in $tmp, but fonts come from the user's fontconfig, as on their desktop.
+    [ -d "$HOME/.config/fontconfig" ] && ln -s "$HOME/.config/fontconfig" "$tmp/config/fontconfig"
     cp screenshots/samples/Notes.md "$tmp/data/pad/"
     cp screenshots/samples/pancakes.md "$tmp/"
     gsettings set io.github.mariocesar.Pad window-sizes "[('$tmp/data/pad/Notes.md', 440, 470), ('$tmp/pancakes.md', 380, 320)]"
