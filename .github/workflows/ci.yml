@@ -20,3 +20,10 @@ jobs:
       - run: meson setup build
       - run: meson compile -C build
       - run: meson test -C build --print-errorlogs
+
+  lint:
+    runs-on: ubuntu-latest
+    container: valalang/lint
+    steps:
+      - uses: actions/checkout@v7
+      - run: io.elementary.vala-lint -d .

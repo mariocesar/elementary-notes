@@ -1,22 +1,21 @@
 // Loading and saving the note, in a temporary XDG_DATA_HOME.
-using Pad;
 
 Pad.Application app;
 
-GtkSource.View open_note (out NoteWindow win) {
-    win = new NoteWindow (app, app.default_file);
+GtkSource.View open_note (out Pad.NoteWindow win) {
+    win = new Pad.NoteWindow (app, app.default_file);
     return (GtkSource.View) ((Gtk.ScrolledWindow) win.child).child;
 }
 
 // close () ignores a window that was never shown, so run its close handler directly.
-void close_note (NoteWindow win) {
+void close_note (Pad.NoteWindow win) {
     bool stop;
     Signal.emit_by_name (win, "close-request", out stop);
     win.destroy ();
     wait_for_save (win);
 }
 
-void wait_for_save (NoteWindow win) {
+void wait_for_save (Pad.NoteWindow win) {
     while (win.saving) MainContext.default ().iteration (true);
 }
 
@@ -71,7 +70,7 @@ string read_note () {
 void add_window_tests () {
     Test.add_func ("/note/loads-file", () => {
         write_note ("# Groceries\n- milk\n");
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         assert_cmpstr (view.buffer.text, CompareOperator.EQ, "# Groceries\n- milk\n");
         assert_false (((GtkSource.Buffer) view.buffer).can_undo);
@@ -79,7 +78,7 @@ void add_window_tests () {
     });
 
     Test.add_func ("/note/pad-style", () => {
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         assert_cmpstr (((GtkSource.Buffer) view.buffer).style_scheme.id, CompareOperator.EQ, "pad");
         assert_true (view.monospace);
@@ -120,7 +119,7 @@ void add_window_tests () {
 
     Test.add_func ("/note/saves-on-close", () => {
         write_note ("one\n");
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         type_text (view, "two\n");
         close_note (win);
@@ -134,7 +133,7 @@ void add_window_tests () {
         } catch (Error e) {
             error (e.message);
         }
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         assert_cmpstr (view.buffer.text, CompareOperator.EQ, "");
         view.buffer.text = "first note";
@@ -145,7 +144,7 @@ void add_window_tests () {
     Test.add_func ("/note/keeps-unreadable-file", () => {
         write_note ("bad \xff bytes");
         Test.expect_message (null, LogLevelFlags.LEVEL_WARNING, "*Reading *not UTF-8 text");
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         Test.assert_expected_messages ();
         assert_false (view.editable);
@@ -157,7 +156,7 @@ void add_window_tests () {
         app.settings.set_string ("note-file", "~/Sync/Todo.md");
         assert_cmpstr (app.default_file.get_path (), CompareOperator.EQ, Path.build_filename (Environment.get_home_dir (), "Sync", "Todo.md"));
         write_note ("custom\n");
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         assert_cmpstr (view.buffer.text, CompareOperator.EQ, "custom\n");
         win.destroy ();
@@ -166,7 +165,7 @@ void add_window_tests () {
 
     Test.add_func ("/note/setting-changed-while-open", () => {
         write_note ("first\n");
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         var first = app.default_file;
         app.settings.set_string ("note-file", "~/Other.md");
@@ -281,7 +280,7 @@ void add_window_tests () {
 
     Test.add_func ("/save/after-a-pause", () => {
         write_note ("start\n");
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         type_text (view, "a");
         run_for (300);
@@ -294,7 +293,7 @@ void add_window_tests () {
 
     Test.add_func ("/save/while-typing", () => {
         write_note ("");
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         // Never pauses long enough, but the oldest edit still gets saved within five seconds.
         for (var i = 0; i < 23; i++) {
@@ -310,7 +309,7 @@ void add_window_tests () {
     Test.add_func ("/save/skips-unchanged", () => {
         write_note ("same\n");
         var before = inode ();
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         type_text (view, "typo");
         view.buffer.undo ();
@@ -321,7 +320,7 @@ void add_window_tests () {
 
     Test.add_func ("/save/edit-during-write", () => {
         write_note ("");
-        NoteWindow win;
+        Pad.NoteWindow win;
         var view = open_note (out win);
         type_text (view, "a");
         while (!win.saving) MainContext.default ().iteration (true);
