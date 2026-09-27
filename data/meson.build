@@ -6,6 +6,20 @@ resources = gnome.compile_resources('notes-resources',
   c_name: 'notes',
 )
 
+desktop_file = configure_file(
+  input: 'notes.desktop.in',
+  output: app_id + '.desktop',
+  configuration: conf,
+  install_dir: datadir / 'applications',
+)
+
+metainfo_file = configure_file(
+  input: 'notes.metainfo.xml.in',
+  output: app_id + '.metainfo.xml',
+  configuration: conf,
+  install_dir: datadir / 'metainfo',
+)
+
 schema_file = configure_file(
   input: 'notes.gschema.xml.in',
   output: app_id + '.gschema.xml',
@@ -24,3 +38,8 @@ gschemas = custom_target('gschemas',
 devenv = environment()
 devenv.set('GSETTINGS_SCHEMA_DIR', meson.current_build_dir())
 meson.add_devenv(devenv)
+
+install_data('icons/notes.png',
+  rename: app_id + '.png',
+  install_dir: datadir / 'icons' / 'hicolor' / '128x128' / 'apps',
+)

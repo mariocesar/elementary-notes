@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Notes
+Comment=The simplest note taking app
+Exec=elementary-notes
+Icon=@APP_ID@
+Terminal=false
+Categories=Utility;TextEditor;
+Keywords=note;notes;markdown;text;
+StartupNotify=true
+SingleMainWindow=true

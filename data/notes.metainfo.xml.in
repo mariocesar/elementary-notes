@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>@APP_ID@</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Notes</name>
+  <summary>The simplest note taking app</summary>
+  <description>
+    <p>
+      Notes is a single sticky note for your desktop. Everything you type is saved to one
+      Markdown file as you write, with Markdown highlighting and smart indentation.
+    </p>
+    <p>Notes works entirely offline and collects no data.</p>
+  </description>
+  <developer id="io.github.mariocesar">
+    <name>Mario-César</name>
+  </developer>
+  <url type="homepage">@HOMEPAGE@</url>
+  <url type="bugtracker">@HOMEPAGE@/issues</url>
+  <url type="vcs-browser">@HOMEPAGE@</url>
+  <launchable type="desktop-id">@APP_ID@.desktop</launchable>
+  <provides>
+    <binary>elementary-notes</binary>
+  </provides>
+  <categories>
+    <category>Utility</category>
+  </categories>
+  <content_rating type="oars-1.1"/>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/mariocesar/elementary-notes/master/screenshots/screenshot.png</image>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="@VERSION@" date="2026-09-27" type="development"/>
+  </releases>
+</component>
