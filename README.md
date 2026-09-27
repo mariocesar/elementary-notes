@@ -7,7 +7,7 @@ The simplest note taking app: one sticky note on your desktop, saved as you type
 </p>
 
 - One note, one Markdown file, with Markdown highlighting and smart indentation.
-- Saved half a second after you stop typing, and when you close the window.
+- Saved half a second after you stop typing, at least every five seconds while you keep going, and when you switch away or close it.
 - Opens as a floating 460×500 note on GNOME, elementary and niri, and resizes like any window.
 - Offline, no accounts, no tracking.
 
