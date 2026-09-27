@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="@RESOURCE_PATH@">
     <file>style.css</file>
+    <file>styles/pad.xml</file>
   </gresource>
 </gresources>

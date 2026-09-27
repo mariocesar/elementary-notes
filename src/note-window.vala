@@ -34,7 +34,7 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
         titlebar = new Gtk.HeaderBar () { decoration_layout = "close:" };
 
         buffer = new GtkSource.Buffer.with_language (GtkSource.LanguageManager.get_default ().get_language ("markdown")) {
-            style_scheme = GtkSource.StyleSchemeManager.get_default ().get_scheme ("solarized-light"),
+            style_scheme = GtkSource.StyleSchemeManager.get_default ().get_scheme ("pad"),
         };
         view = new GtkSource.View.with_buffer (buffer) {
             insert_spaces_instead_of_tabs = true,

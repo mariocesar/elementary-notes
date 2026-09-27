@@ -78,6 +78,13 @@ void add_window_tests () {
         win.destroy ();
     });
 
+    Test.add_func ("/note/pad-style", () => {
+        NoteWindow win;
+        var view = open_note (out win);
+        assert_cmpstr (((GtkSource.Buffer) view.buffer).style_scheme.id, CompareOperator.EQ, "pad");
+        win.destroy ();
+    });
+
     Test.add_func ("/note/saves-on-close", () => {
         write_note ("one\n");
         NoteWindow win;

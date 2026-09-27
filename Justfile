@@ -6,7 +6,8 @@ run:
 test:
     meson test -C build
 
-# Retake the README screenshot from screenshots/samples. niri only; opens two Pad windows for a few seconds.
+# Retake the README screenshot from screenshots/samples. niri only; opens two Pad windows for a few
+# seconds, so leave the desktop alone until it is done.
 screenshots:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -24,7 +25,7 @@ screenshots:
     shot() {
         id=$(wid "$1")
         niri msg action focus-window --id "$id"
-        sleep 0.5
+        sleep 1
         niri msg action screenshot-window --id "$id" --path "$2"
         timeout 10 sh -c 'until [ -s "$0" ]; do sleep 0.2; done' "$2"
     }

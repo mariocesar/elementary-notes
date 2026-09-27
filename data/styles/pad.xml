@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ink on yellow paper: Markdown reads like a note, other languages keep Solarized Light's colors. -->
+<style-scheme id="pad" name="Pad" version="1.0" parent-scheme="solarized-light">
+  <color name="ink" value="#4a4536"/>
+  <color name="ink-soft" value="#8c8468"/>
+  <color name="ochre" value="#8a6400"/>
+  <color name="rust" value="#b0501e"/>
+  <color name="teal" value="#2b6f7a"/>
+  <color name="highlight" value="#f1de8c"/>
+
+  <style name="text" foreground="ink"/>
+  <style name="selection" foreground="ink" background="highlight"/>
+  <style name="cursor" foreground="ochre"/>
+
+  <style name="def:heading" foreground="ochre" bold="true" scale="1.25"/>
+  <style name="def:emphasis" italic="true"/>
+  <style name="def:strong-emphasis" foreground="ink" bold="true"/>
+  <style name="def:list-marker" foreground="rust" bold="true"/>
+  <style name="def:inline-code" foreground="teal"/>
+  <style name="def:preformatted-section" foreground="teal"/>
+  <style name="def:shebang" foreground="ink-soft" bold="true"/>
+  <!-- Plain ink: task boxes like [x] parse as link text. -->
+  <style name="def:link-text" foreground="ink"/>
+  <style name="def:link-destination" foreground="ink-soft"/>
+  <style name="def:link-symbol" foreground="ink-soft"/>
+  <style name="def:thematic-break" foreground="ink-soft"/>
+</style-scheme>

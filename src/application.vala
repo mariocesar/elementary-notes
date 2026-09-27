@@ -52,6 +52,7 @@ namespace Pad {
             css.load_from_resource (resource_base_path + "/style.css");
             add_provider_for_display (Gdk.Display.get_default (), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             settings = new GLib.Settings (Config.APP_ID);
+            GtkSource.StyleSchemeManager.get_default ().append_search_path ("resource://" + resource_base_path + "/styles");
         }
 
         public override void activate () {
