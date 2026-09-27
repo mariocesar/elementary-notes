@@ -52,6 +52,13 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
             first_edit = last_edit;
             wait_to_save (SAVE_PAUSE);
         });
+        // Switching away is a natural pause: save now.
+        notify["is-active"].connect (() => {
+            if (is_active || save_source == 0) return;
+            Source.remove (save_source);
+            save_source = 0;
+            save.begin ();
+        });
     }
 
     // One timeout per burst of typing: it goes back to sleep until the burst ends, instead of
