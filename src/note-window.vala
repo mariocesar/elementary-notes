@@ -38,7 +38,15 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
         this.file = file;
         file_name = file.get_basename ();
         add_css_class ("note");
-        titlebar = new Gtk.HeaderBar () { decoration_layout = "close:" };
+        // Only a close button, on the side where the desktop puts it.
+        var header = new Gtk.HeaderBar ();
+        Gtk.Settings.get_default ().bind_property ("gtk-decoration-layout", header, "decoration-layout",
+            BindingFlags.SYNC_CREATE, (binding, from, ref to) => {
+                var layout = (string) from ?? "";
+                to = "close" in layout.split (":")[0] ? "close:" : ":close";
+                return true;
+            });
+        titlebar = header;
 
         // Highlighting follows the file name; notes, plain text and unknown files read as Markdown.
         var languages = GtkSource.LanguageManager.get_default ();

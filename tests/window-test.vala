@@ -90,6 +90,20 @@ void add_window_tests () {
         win.destroy ();
     });
 
+    Test.add_func ("/note/close-button-side", () => {
+        var gtk_settings = Gtk.Settings.get_default ();
+        var desktop = gtk_settings.gtk_decoration_layout;
+        Pad.NoteWindow win;
+        open_note (out win);
+        var header = (Gtk.HeaderBar) win.titlebar;
+        gtk_settings.gtk_decoration_layout = "icon:minimize,maximize,close";
+        assert_cmpstr (header.decoration_layout, CompareOperator.EQ, ":close");
+        gtk_settings.gtk_decoration_layout = "close,maximize:";
+        assert_cmpstr (header.decoration_layout, CompareOperator.EQ, "close:");
+        gtk_settings.gtk_decoration_layout = desktop;
+        win.destroy ();
+    });
+
     Test.add_func ("/font/ctrl-plus-and-minus", () => {
         assert_cmpint (app.settings.get_int ("font-size"), CompareOperator.EQ, 11);
         assert_true ("<Control>plus" in app.get_accels_for_action ("app.zoom-in"));
