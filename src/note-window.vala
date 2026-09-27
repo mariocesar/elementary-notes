@@ -1,9 +1,16 @@
 public class Notes.NoteWindow : Gtk.ApplicationWindow {
+    // Edits are saved once typing pauses, and at least this often while it goes on.
+    const int64 SAVE_PAUSE = 500 * TimeSpan.MILLISECOND;
+    const int64 SAVE_MAX_WAIT = 5 * TimeSpan.SECOND;
+
     // Fixed while the window is open, so a changed setting never gets this note's text.
     File file;
     GtkSource.View view;
     GtkSource.Buffer buffer;
     uint save_source;
+    // Monotonic times of the first and last edit waiting for save_source.
+    int64 first_edit;
+    int64 last_edit;
 
     public NoteWindow (Application app) {
         // Opens at a fixed size so niri floats it, then becomes resizable once shown.
@@ -35,12 +42,26 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
 
         load ();
         buffer.changed.connect (() => {
-            if (save_source != 0) Source.remove (save_source);
-            save_source = Timeout.add (500, () => {
+            last_edit = get_monotonic_time ();
+            if (save_source != 0) return;
+            first_edit = last_edit;
+            wait_to_save (SAVE_PAUSE);
+        });
+    }
+
+    // One timeout per burst of typing: it goes back to sleep until the burst ends, instead of
+    // being replaced on every key.
+    void wait_to_save (int64 delay) {
+        save_source = Timeout.add ((uint) ((delay + TimeSpan.MILLISECOND - 1) / TimeSpan.MILLISECOND), () => {
+            var due = int64.min (last_edit + SAVE_PAUSE, first_edit + SAVE_MAX_WAIT);
+            var now = get_monotonic_time ();
+            if (now < due) {
+                wait_to_save (due - now);
+            } else {
                 save_source = 0;
                 save ();
-                return Source.REMOVE;
-            });
+            }
+            return Source.REMOVE;
         });
     }
 

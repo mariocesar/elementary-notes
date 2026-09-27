@@ -15,6 +15,22 @@ void close_note (NoteWindow win) {
     win.destroy ();
 }
 
+// Runs the main loop, so save timeouts can fire.
+void run_for (uint ms) {
+    var loop = new MainLoop ();
+    Timeout.add (ms, () => {
+        loop.quit ();
+        return Source.REMOVE;
+    });
+    loop.run ();
+}
+
+void type_text (GtkSource.View view, string text) {
+    Gtk.TextIter end;
+    view.buffer.get_end_iter (out end);
+    view.buffer.insert (ref end, text, -1);
+}
+
 void write_note (string text) {
     try {
         app.file.get_parent ().make_directory_with_parents ();
@@ -53,9 +69,7 @@ void add_window_tests () {
         write_note ("one\n");
         NoteWindow win;
         var view = open_note (out win);
-        Gtk.TextIter end;
-        view.buffer.get_end_iter (out end);
-        view.buffer.insert (ref end, "two\n", -1);
+        type_text (view, "two\n");
         close_note (win);
         assert_cmpstr (read_note (), CompareOperator.EQ, "one\ntwo\n");
     });
@@ -109,6 +123,32 @@ void add_window_tests () {
         app.settings.reset ("note-file");
         assert_true (app.file.equal (first));
         assert_cmpstr (read_note (), CompareOperator.EQ, "edited\n");
+    });
+
+    Test.add_func ("/save/after-a-pause", () => {
+        write_note ("start\n");
+        NoteWindow win;
+        var view = open_note (out win);
+        type_text (view, "a");
+        run_for (300);
+        assert_cmpstr (read_note (), CompareOperator.EQ, "start\n");
+        run_for (400);
+        assert_cmpstr (read_note (), CompareOperator.EQ, "start\na");
+        close_note (win);
+    });
+
+    Test.add_func ("/save/while-typing", () => {
+        write_note ("");
+        NoteWindow win;
+        var view = open_note (out win);
+        // Never pauses long enough, but the oldest edit still gets saved within five seconds.
+        for (var i = 0; i < 23; i++) {
+            type_text (view, "x");
+            run_for (250);
+        }
+        assert_true (read_note ().length >= 20);
+        close_note (win);
+        assert_cmpstr (read_note (), CompareOperator.EQ, string.nfill (23, 'x'));
     });
 }
 
