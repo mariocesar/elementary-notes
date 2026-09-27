@@ -37,6 +37,12 @@ You need Meson, Vala, GTK 4.20 or newer and GtkSourceView 5.
 
 Or `just install` to install into `~/.local`.
 
+As a Flatpak, with the GNOME 49 runtime from Flathub:
+
+    flatpak-builder --user --install --force-clean build-flatpak io.github.mariocesar.Pad.yml
+
+The Flatpak keeps its default note in `~/.var/app/io.github.mariocesar.Pad/data/pad/Notes.md`.
+
 ## Develop
 
     just run

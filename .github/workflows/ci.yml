@@ -21,6 +21,20 @@ jobs:
       - run: meson compile -C build
       - run: meson test -C build --print-errorlogs
 
+  flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v7
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.8
+        with:
+          bundle: pad.flatpak
+          manifest-path: io.github.mariocesar.Pad.yml
+          run-tests: true
+          cache-key: flatpak-builder-${{ github.sha }}
+
   lint:
     runs-on: ubuntu-latest
     container: valalang/lint
