@@ -1,5 +1,6 @@
 config_vala = configure_file(input: 'config.vala.in', output: 'config.vala', configuration: conf)
 
+# Everything but main(), shared with the window test.
 app_sources = [files('application.vala', 'note-window.vala'), config_vala, resources]
 app_deps = [
   dependency('glib-2.0', version: '>= 2.80'),

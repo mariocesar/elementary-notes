@@ -22,6 +22,7 @@ conf.set('RESOURCE_PATH', '/' + app_id.replace('.', '/'))
 
 subdir('data')
 subdir('src')
+subdir('tests')
 
 gnome.post_install(
   glib_compile_schemas: true,
