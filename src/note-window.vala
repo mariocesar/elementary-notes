@@ -33,7 +33,10 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
         add_css_class ("note");
         titlebar = new Gtk.HeaderBar () { decoration_layout = "close:" };
 
-        buffer = new GtkSource.Buffer.with_language (GtkSource.LanguageManager.get_default ().get_language ("markdown")) {
+        // Highlighting follows the file name; notes, plain text and unknown files read as Markdown.
+        var languages = GtkSource.LanguageManager.get_default ();
+        var language = languages.guess_language (file_name, null) ?? languages.get_language ("markdown");
+        buffer = new GtkSource.Buffer.with_language (language) {
             style_scheme = GtkSource.StyleSchemeManager.get_default ().get_scheme ("pad"),
         };
         view = new GtkSource.View.with_buffer (buffer) {

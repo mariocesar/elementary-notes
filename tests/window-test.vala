@@ -85,6 +85,22 @@ void add_window_tests () {
         win.destroy ();
     });
 
+    Test.add_func ("/note/language-from-file-name", () => {
+        string[,] cases = {
+            { "Notes.md", "markdown" },
+            { "deploy.sh", "sh" },
+            { "main.vala", "vala" },
+            { "todo.txt", "markdown" },
+            { "TODO", "markdown" },
+        };
+        for (var i = 0; i < cases.length[0]; i++) {
+            var win = app.window_for (File.new_build_filename (Environment.get_home_dir (), cases[i, 0]));
+            var buffer = (GtkSource.Buffer) ((GtkSource.View) ((Gtk.ScrolledWindow) win.child).child).buffer;
+            assert_cmpstr (buffer.language.id, CompareOperator.EQ, cases[i, 1]);
+            win.destroy ();
+        }
+    });
+
     Test.add_func ("/note/saves-on-close", () => {
         write_note ("one\n");
         NoteWindow win;
