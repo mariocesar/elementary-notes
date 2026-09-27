@@ -2,10 +2,10 @@
 Type=Application
 Name=Pad
 Comment=The simplest note taking app
-Exec=pad
+Exec=pad %F
 Icon=@APP_ID@
 Terminal=false
 Categories=Utility;TextEditor;
 Keywords=pad;note;notes;markdown;text;
 StartupNotify=true
-SingleMainWindow=true
+MimeType=text/markdown;text/plain;

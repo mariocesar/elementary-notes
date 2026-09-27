@@ -3,8 +3,9 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
     const int64 SAVE_PAUSE = 500 * TimeSpan.MILLISECOND;
     const int64 SAVE_MAX_WAIT = 5 * TimeSpan.SECOND;
 
-    // Fixed while the window is open, so a changed setting never gets this note's text.
-    File file;
+    public File file { get; private set; }
+    // Shown as the window title.
+    string file_name;
     GtkSource.View view;
     GtkSource.Buffer buffer;
     uint save_source;
@@ -17,15 +18,16 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
     // Held from closing until the last write is done, so the app doesn't quit mid-write.
     GLib.Application? held;
 
-    public NoteWindow (Application app) {
+    public NoteWindow (Application app, File file) {
         // Opens at a fixed size so niri floats it, then becomes resizable once shown.
-        Object (application: app, title: "Note", resizable: false,
+        Object (application: app, title: file.get_basename (), resizable: false,
             default_width: app.settings.get_int ("window-width"), default_height: app.settings.get_int ("window-height"));
         map.connect_after (() => Idle.add (() => {
             resizable = true;
             return Source.REMOVE;
         }));
-        file = app.file;
+        this.file = file;
+        file_name = file.get_basename ();
         add_css_class ("note");
         titlebar = new Gtk.HeaderBar () { decoration_layout = "close:" };
 
@@ -94,7 +96,7 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
             // Never overwrite a note that could not be read.
             warning ("Reading %s: %s", file.get_path (), e.message);
             view.editable = false;
-            title = "Note (read only)";
+            title = file_name + " (read only)";
         }
     }
 
@@ -119,11 +121,11 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
                     file.get_parent ().make_directory_with_parents ();
                     yield file.replace_contents_bytes_async (bytes, null, false, FileCreateFlags.NONE, null, null);
                 }
-                title = "Note";
+                title = file_name;
             } catch (Error e) {
                 // Kept modified: the next edit or closing tries again.
                 warning ("Saving %s: %s", file.get_path (), e.message);
-                title = "Note (not saved)";
+                title = file_name + " (not saved)";
                 buffer.set_modified (true);
                 break;
             }

@@ -16,3 +16,7 @@ endif
 window_test = executable('window-test', 'window-test.vala', app_sources, dependencies: app_deps)
 test('window', window_test, suite: 'widget', protocol: 'tap', args: ['--tap'], depends: gschemas,
   env: {'GSETTINGS_SCHEMA_DIR': meson.project_build_root() / 'data', 'GSETTINGS_BACKEND': 'memory'})
+
+# A real primary instance plus forwarded commands, isolated on a private bus and a headless display.
+test('cli', find_program('sh'), args: [files('cli-test.sh'), pad], suite: 'app', timeout: 60,
+  depends: gschemas, env: {'GSETTINGS_SCHEMA_DIR': meson.project_build_root() / 'data'})

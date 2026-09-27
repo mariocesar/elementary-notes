@@ -15,7 +15,7 @@ jobs:
     container: archlinux:latest
     steps:
       - name: Install dependencies
-        run: pacman -Syu --noconfirm --needed gcc git pkgconf meson vala gtk4 gtksourceview5 desktop-file-utils appstream
+        run: pacman -Syu --noconfirm --needed gcc git pkgconf meson vala gtk4 gtksourceview5 desktop-file-utils appstream dbus
       - uses: actions/checkout@v7
       - run: meson setup build
       - run: meson compile -C build

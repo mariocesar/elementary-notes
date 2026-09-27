@@ -4,7 +4,7 @@ using Pad;
 Pad.Application app;
 
 GtkSource.View open_note (out NoteWindow win) {
-    win = new NoteWindow (app);
+    win = new NoteWindow (app, app.default_file);
     return (GtkSource.View) ((Gtk.ScrolledWindow) win.child).child;
 }
 
@@ -38,7 +38,7 @@ void type_text (GtkSource.View view, string text) {
 
 uint64 inode () {
     try {
-        return app.file.query_info ("unix::inode", FileQueryInfoFlags.NONE).get_attribute_uint64 ("unix::inode");
+        return app.default_file.query_info ("unix::inode", FileQueryInfoFlags.NONE).get_attribute_uint64 ("unix::inode");
     } catch (Error e) {
         error (e.message);
     }
@@ -46,13 +46,13 @@ uint64 inode () {
 
 void write_note (string text) {
     try {
-        app.file.get_parent ().make_directory_with_parents ();
+        app.default_file.get_parent ().make_directory_with_parents ();
     } catch (IOError.EXISTS e) {
     } catch (Error e) {
         error (e.message);
     }
     try {
-        app.file.replace_contents (text.data, null, false, FileCreateFlags.NONE, null);
+        app.default_file.replace_contents (text.data, null, false, FileCreateFlags.NONE, null);
     } catch (Error e) {
         error (e.message);
     }
@@ -61,7 +61,7 @@ void write_note (string text) {
 string read_note () {
     uint8[] contents;
     try {
-        app.file.load_contents (null, out contents, null);
+        app.default_file.load_contents (null, out contents, null);
     } catch (Error e) {
         error (e.message);
     }
@@ -89,8 +89,8 @@ void add_window_tests () {
 
     Test.add_func ("/note/creates-missing-folder", () => {
         try {
-            app.file.delete ();
-            app.file.get_parent ().delete ();
+            app.default_file.delete ();
+            app.default_file.get_parent ().delete ();
         } catch (Error e) {
             error (e.message);
         }
@@ -115,7 +115,7 @@ void add_window_tests () {
 
     Test.add_func ("/note/custom-file", () => {
         app.settings.set_string ("note-file", "~/Sync/Todo.md");
-        assert_cmpstr (app.file.get_path (), CompareOperator.EQ, Path.build_filename (Environment.get_home_dir (), "Sync", "Todo.md"));
+        assert_cmpstr (app.default_file.get_path (), CompareOperator.EQ, Path.build_filename (Environment.get_home_dir (), "Sync", "Todo.md"));
         write_note ("custom\n");
         NoteWindow win;
         var view = open_note (out win);
@@ -128,20 +128,20 @@ void add_window_tests () {
         write_note ("first\n");
         NoteWindow win;
         var view = open_note (out win);
-        var first = app.file;
+        var first = app.default_file;
         app.settings.set_string ("note-file", "~/Other.md");
         view.buffer.text = "edited\n";
         close_note (win);
-        assert_false (app.file.query_exists ());
+        assert_false (app.default_file.query_exists ());
         app.settings.reset ("note-file");
-        assert_true (app.file.equal (first));
+        assert_true (app.default_file.equal (first));
         assert_cmpstr (read_note (), CompareOperator.EQ, "edited\n");
     });
 
     Test.add_func ("/note/opens-at-saved-size", () => {
         app.settings.set_int ("window-width", 620);
         app.settings.set_int ("window-height", 380);
-        var win = new NoteWindow (app);
+        var win = new NoteWindow (app, app.default_file);
         int width, height;
         win.get_default_size (out width, out height);
         assert_cmpint (width, CompareOperator.EQ, 620);
@@ -149,6 +149,20 @@ void add_window_tests () {
         win.destroy ();
         app.settings.reset ("window-width");
         app.settings.reset ("window-height");
+    });
+
+    Test.add_func ("/app/one-window-per-file", () => {
+        var a = File.new_build_filename (Environment.get_home_dir (), "a.md");
+        var b = File.new_build_filename (Environment.get_home_dir (), "b.md");
+        var win_a = app.window_for (a);
+        var win_b = app.window_for (b);
+        assert_true (win_a != win_b);
+        assert_true (app.window_for (File.new_for_path (a.get_path ())) == win_a);
+        assert_cmpstr (win_a.title, CompareOperator.EQ, "a.md");
+        assert_cmpuint (app.get_windows ().length (), CompareOperator.EQ, 2);
+        win_a.destroy ();
+        win_b.destroy ();
+        assert_false (a.query_exists ());
     });
 
     Test.add_func ("/save/after-a-pause", () => {
