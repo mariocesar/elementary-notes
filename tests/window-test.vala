@@ -4,7 +4,12 @@ Pad.Application app;
 
 GtkSource.View open_note (out Pad.NoteWindow win) {
     win = new Pad.NoteWindow (app, app.default_file);
-    return (GtkSource.View) ((Gtk.ScrolledWindow) win.child).child;
+    return win.view;
+}
+
+// The strip above the text that says why the note couldn't be read or saved.
+Gtk.Revealer banner (Pad.NoteWindow win) {
+    return (Gtk.Revealer) ((Gtk.Box) win.child).get_first_child ();
 }
 
 // close () ignores a window that was never shown, so run its close handler directly.
@@ -111,7 +116,7 @@ void add_window_tests () {
         };
         for (var i = 0; i < cases.length[0]; i++) {
             var win = app.window_for (File.new_build_filename (Environment.get_home_dir (), cases[i, 0]));
-            var buffer = (GtkSource.Buffer) ((GtkSource.View) ((Gtk.ScrolledWindow) win.child).child).buffer;
+            var buffer = (GtkSource.Buffer) win.view.buffer;
             assert_cmpstr (buffer.language.id, CompareOperator.EQ, cases[i, 1]);
             win.destroy ();
         }
@@ -148,8 +153,41 @@ void add_window_tests () {
         var view = open_note (out win);
         Test.assert_expected_messages ();
         assert_false (view.editable);
+        assert_true (banner (win).reveal_child);
+        assert_true ("not UTF-8 text" in ((Gtk.Label) banner (win).child).label);
         close_note (win);
         assert_cmpstr (read_note (), CompareOperator.EQ, "bad \xff bytes");
+    });
+
+    Test.add_func ("/note/save-failure-shows-banner", () => {
+        write_note ("");
+        Pad.NoteWindow win;
+        var view = open_note (out win);
+        assert_false (banner (win).reveal_child);
+        // A file where the note's folder was fails the save, even as root.
+        var folder = app.default_file.get_parent ().get_path ();
+        FileUtils.unlink (app.default_file.get_path ());
+        DirUtils.remove (folder);
+        try {
+            FileUtils.set_contents (folder, "");
+        } catch (Error e) {
+            error (e.message);
+        }
+        Test.expect_message (null, LogLevelFlags.LEVEL_WARNING, "*Saving *");
+        type_text (view, "kept");
+        run_for (700);
+        wait_for_save (win);
+        Test.assert_expected_messages ();
+        assert_true (banner (win).reveal_child);
+        assert_true (((Gtk.Label) banner (win).child).label.has_prefix ("Not saved: "));
+        // Once the folder can be made again, the next edit saves everything and hides the banner.
+        FileUtils.unlink (folder);
+        type_text (view, "!");
+        run_for (700);
+        wait_for_save (win);
+        assert_false (banner (win).reveal_child);
+        assert_cmpstr (read_note (), CompareOperator.EQ, "kept!");
+        close_note (win);
     });
 
     Test.add_func ("/note/custom-file", () => {

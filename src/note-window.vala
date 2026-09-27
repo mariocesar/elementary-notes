@@ -6,8 +6,11 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
     public File file { get; private set; }
     // Shown as the window title.
     string file_name;
-    GtkSource.View view;
+    public GtkSource.View view { get; private set; }
     GtkSource.Buffer buffer;
+    // Says why the file couldn't be read or saved; hidden otherwise.
+    Gtk.Revealer banner;
+    Gtk.Label banner_label;
     uint save_source;
     // Monotonic times of the first and last edit waiting for save_source.
     int64 first_edit;
@@ -56,7 +59,13 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
             top_margin = 15,
             bottom_margin = 15,
         };
-        child = new Gtk.ScrolledWindow () { child = view, hexpand = true, vexpand = true };
+        banner_label = new Gtk.Label ("") { wrap = true, xalign = 0 };
+        banner_label.add_css_class ("banner");
+        banner = new Gtk.Revealer () { child = banner_label };
+        var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+        box.append (banner);
+        box.append (new Gtk.ScrolledWindow () { child = view, hexpand = true, vexpand = true });
+        child = box;
 
         load ();
         buffer.changed.connect (() => {
@@ -107,6 +116,8 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
             warning ("Reading %s: %s", file.get_path (), e.message);
             view.editable = false;
             title = file_name + " (read only)";
+            banner_label.label = "Pad couldn't read this file, so it won't change it: " + e.message;
+            banner.reveal_child = true;
         }
     }
 
@@ -132,10 +143,13 @@ public class Pad.NoteWindow : Gtk.ApplicationWindow {
                     yield file.replace_contents_bytes_async (bytes, null, false, FileCreateFlags.NONE, null, null);
                 }
                 title = file_name;
+                banner.reveal_child = false;
             } catch (Error e) {
                 // Kept modified: the next edit or closing tries again.
                 warning ("Saving %s: %s", file.get_path (), e.message);
                 title = file_name + " (not saved)";
+                banner_label.label = "Not saved: %s. Pad tries again with your next edit.".printf (e.message);
+                banner.reveal_child = true;
                 buffer.set_modified (true);
                 break;
             }

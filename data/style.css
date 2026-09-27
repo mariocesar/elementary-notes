@@ -23,6 +23,13 @@ window.note.csd:not(.tiled):not(.tiled-top):not(.tiled-bottom):not(.tiled-left):
   border-radius: 12px;
 }
 
+/* Why the note couldn't be read or saved. */
+window.note .banner {
+  background-color: #f6d3c4;
+  color: #6b1d10;
+  padding: 8px 15px;
+}
+
 /* The view's monospace flag only adds a style class that not every theme styles. */
 window.note textview {
   font-family: monospace;
