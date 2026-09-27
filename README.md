@@ -19,6 +19,8 @@ The simplest note taking app: one sticky note on your desktop, saved as you type
 
 Relative paths work from any folder, and a file that is already open comes to the front instead of opening twice. A file that doesn't exist yet is created when you start typing.
 
+Ctrl+ and Ctrl− change the font size of every note. To set it directly: `gsettings set io.github.mariocesar.Pad font-size 14`.
+
 The default note lives in `~/.local/share/pad/Notes.md`. To keep it somewhere else, like a synced folder:
 
     gsettings set io.github.mariocesar.Pad note-file '~/Dropbox/Notes/Notes.md'

@@ -6,6 +6,12 @@
       <summary>Markdown file that holds the note</summary>
       <description>An absolute path, or one starting with ~/. Empty uses Notes.md in the user data folder, usually ~/.local/share/pad/Notes.md. Takes effect the next time Pad opens.</description>
     </key>
+    <key name="font-size" type="i">
+      <range min="6" max="48"/>
+      <default>11</default>
+      <summary>Font size of the notes, in points</summary>
+      <description>Ctrl+ and Ctrl− change it in steps of one point.</description>
+    </key>
     <key name="window-geometry" type="a(siiii)">
       <default>[]</default>
       <summary>Window size and position of each file, as (path, width, height, x, y)</summary>

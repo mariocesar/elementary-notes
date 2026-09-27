@@ -8,6 +8,9 @@ namespace Pad {
         const int DEFAULT_WIDTH = 460;
         const int DEFAULT_HEIGHT = 500;
         const int MAX_WINDOWS = 100;
+        // Same range as the font-size setting.
+        const int MIN_FONT_SIZE = 6;
+        const int MAX_FONT_SIZE = 48;
 
         public GLib.Settings settings { get; private set; }
 
@@ -52,7 +55,26 @@ namespace Pad {
             css.load_from_resource (resource_base_path + "/style.css");
             add_provider_for_display (Gdk.Display.get_default (), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             settings = new GLib.Settings (Config.APP_ID);
+            // Every note follows the font-size setting, open ones included.
+            var font = new Gtk.CssProvider ();
+            add_provider_for_display (Gdk.Display.get_default (), font, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            settings.changed["font-size"].connect (() => {
+                font.load_from_string ("window.note textview { font-size: %dpt; }".printf (settings.get_int ("font-size")));
+            });
+            settings.changed["font-size"] ("font-size");
+            var zoom_in = new SimpleAction ("zoom-in", null);
+            zoom_in.activate.connect (() => change_font_size (1));
+            add_action (zoom_in);
+            set_accels_for_action ("app.zoom-in", { "<Control>plus", "<Control>equal", "<Control>KP_Add" });
+            var zoom_out = new SimpleAction ("zoom-out", null);
+            zoom_out.activate.connect (() => change_font_size (-1));
+            add_action (zoom_out);
+            set_accels_for_action ("app.zoom-out", { "<Control>minus", "<Control>KP_Subtract" });
             GtkSource.StyleSchemeManager.get_default ().append_search_path ("resource://" + resource_base_path + "/styles");
+        }
+
+        void change_font_size (int step) {
+            settings.set_int ("font-size", (settings.get_int ("font-size") + step).clamp (MIN_FONT_SIZE, MAX_FONT_SIZE));
         }
 
         public override void activate () {

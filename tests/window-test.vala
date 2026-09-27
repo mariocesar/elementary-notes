@@ -86,6 +86,22 @@ void add_window_tests () {
         win.destroy ();
     });
 
+    Test.add_func ("/font/ctrl-plus-and-minus", () => {
+        assert_cmpint (app.settings.get_int ("font-size"), CompareOperator.EQ, 11);
+        assert_true ("<Control>plus" in app.get_accels_for_action ("app.zoom-in"));
+        assert_true ("<Control>minus" in app.get_accels_for_action ("app.zoom-out"));
+        app.activate_action ("zoom-in", null);
+        assert_cmpint (app.settings.get_int ("font-size"), CompareOperator.EQ, 12);
+        app.activate_action ("zoom-out", null);
+        app.activate_action ("zoom-out", null);
+        assert_cmpint (app.settings.get_int ("font-size"), CompareOperator.EQ, 10);
+        // Stays within the setting's range.
+        app.settings.set_int ("font-size", 48);
+        app.activate_action ("zoom-in", null);
+        assert_cmpint (app.settings.get_int ("font-size"), CompareOperator.EQ, 48);
+        app.settings.reset ("font-size");
+    });
+
     Test.add_func ("/note/language-from-file-name", () => {
         string[,] cases = {
             { "Notes.md", "markdown" },
