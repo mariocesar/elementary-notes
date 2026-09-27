@@ -11,7 +11,11 @@ The simplest note taking app: one sticky note on your desktop, saved as you type
 - Opens as a floating 460×500 note on GNOME, elementary and niri, and resizes like any window.
 - Offline, no accounts, no tracking.
 
-The note lives in `~/.local/share/notes/Notes.md`. To keep it in a synced folder, replace that file with a symlink; Notes writes through it.
+The note lives in `~/.local/share/notes/Notes.md`. To keep it somewhere else, like a synced folder:
+
+    gsettings set io.github.mariocesar.Notes note-file '~/Dropbox/Notes/Notes.md'
+
+It takes effect the next time Notes opens. `gsettings reset io.github.mariocesar.Notes note-file` goes back to the default.
 
 ## Install
 
