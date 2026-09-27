@@ -1,6 +1,7 @@
 public class Notes.NoteWindow : Gtk.ApplicationWindow {
     unowned Application app;
     GtkSource.Buffer buffer;
+    uint save_source;
 
     public NoteWindow (Application app) {
         Object (application: app, title: "Note");
@@ -28,7 +29,14 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
         child = new Gtk.ScrolledWindow () { child = view, hexpand = true, vexpand = true };
 
         load ();
-        buffer.changed.connect (save);
+        buffer.changed.connect (() => {
+            if (save_source != 0) Source.remove (save_source);
+            save_source = Timeout.add (500, () => {
+                save_source = 0;
+                save ();
+                return Source.REMOVE;
+            });
+        });
     }
 
     void load () {
@@ -58,6 +66,11 @@ public class Notes.NoteWindow : Gtk.ApplicationWindow {
     }
 
     public override bool close_request () {
+        if (save_source != 0) {
+            Source.remove (save_source);
+            save_source = 0;
+            save ();
+        }
         int width, height;
         get_default_size (out width, out height);
         app.settings.set_int ("window-width", width);
