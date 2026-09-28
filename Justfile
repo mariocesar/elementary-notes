@@ -53,6 +53,8 @@ screenshots:
     oxipng -q -o 4 --strip safe screenshots/pad.png
 
 # Install into ~/.local: pad on the PATH, desktop entry, icon, metadata and settings schema.
+# Meson keeps absolute paths, so a build-local made before the project moved is set up again.
 install:
+    grep -qsF '"{{justfile_directory()}}/build-local"' build-local/meson-info/meson-info.json || rm -rf build-local
     test -d build-local || meson setup build-local --prefix=$HOME/.local -Dbuildtype=release
     meson install -C build-local
